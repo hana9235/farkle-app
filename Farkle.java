@@ -2,7 +2,7 @@ import java.io.*;
 import java.util.*;
 
 
-public class TenThousand {
+public class Farkle {
     
     int num_players;
     private static ArrayList<Player> p_list;
@@ -10,7 +10,7 @@ public class TenThousand {
     // so don't need to init a dice list here
     
     public static void main(String[] args) {
-        System.out.println("-={ Ten Thousand }=-");
+        System.out.println("-={ Farkle }=-");
 
         // ask for number of players, cast to int
         System.out.print("Enter the number of players: ");
@@ -27,6 +27,6 @@ public class TenThousand {
                 
         // create that list, pass it to Game();
         System.out.println("Let's play!");
-        Game ten_k = new Game(p_list);
+        Game farkle = new Game(p_list);
     }
 }
