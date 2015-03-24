@@ -30,6 +30,7 @@ public class Farkle {
         // create that list, pass it to Game();
         System.out.println("Let's play!");
         Game farkle = new Game(p_list);
+        farkle.play();
     }
 }
 
@@ -182,7 +183,6 @@ class Game {
 
         // an index to be used for the player_list
         this.current_player = 0;
-        play();
     }
 
 
