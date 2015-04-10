@@ -1,3 +1,4 @@
+
 import java.io.*;
 import java.util.*;
 
@@ -119,6 +120,11 @@ class Game {
             
             if (go_again) {
                 // total up things, check dice, start while again
+                // you have to make sure to update the score so the user only gets credit
+                // for the dice that they held
+                ArrayList<Integer> updated_results = calculate_roll_value(p);
+                roll_score = roll_score - updated_results.get(0);
+
                 turn_total += roll_score;
             }
             else { // player said no to roll again
@@ -360,14 +366,7 @@ class Game {
     public boolean ai_decision(Player p, int roll_score, int scoring_dice) { // list or int of scoring dice?  need to know which ones 
         System.out.println("Current player is an AI, decide what to do with your roll.");
         ArrayList<Integer> dice_to_hold = new ArrayList<Integer>();
-        /* AI should worry about:
-        //      how many dice are left to roll
-        //      which dice to hold
-        //      the score (if it's over a certain amount, just opt to hold? -- too limiting? -- set that threshold high
-        //      the current roll's score
-        //           linked to how many are left to roll -- don't roll two dice if you already have like 800 points -- not a good chance to keep scoring
-        //           UNLESS NOT ON_BOARD  (why not bother risking it if you can't keep it anyway)
-        //      
+
         // AI doesn't have to pipe input into y/n questions, because this will be a separate if-branch, so make the decisions here */
         if (roll_score > 1000) {
             // decide not to roll again, because that's a good score and don't want to risk losing it
