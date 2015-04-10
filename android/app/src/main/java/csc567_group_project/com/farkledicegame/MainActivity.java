@@ -37,5 +37,8 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    
+    public void onClick(View v) {
+        startActivity(new Intent(getApplicationContext(), setup.class));
+        finish();
+    }
 }
