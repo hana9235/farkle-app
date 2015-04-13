@@ -454,7 +454,7 @@ class Game {
 
 
 class Player {
-    
+    String playerName;
     int total_score;
     boolean on_board, is_ai;
     ArrayList<Die> dice_list, held_dice;
@@ -472,6 +472,10 @@ class Player {
             Die d = new Die();
             this.dice_list.add(d); 
         }
+    }
+    
+    public void set_name(String s) {
+        this.name = s;
     }
     
     public void set_to_ai() {
