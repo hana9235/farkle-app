@@ -79,6 +79,7 @@
             <ImageButton
                 android:maxHeight="15dp"
                 android:maxWidth="15dp"
+                android:id="@+id/d1"
                 android:background="@drawable/d1"
                 android:layout_margin="5dp"/>
 
@@ -86,30 +87,35 @@
                 android:background="@drawable/d2"
                 android:maxHeight="15dp"
                 android:maxWidth="15dp"
+                android:id="@+id/d2"
                 android:layout_margin="5dp"/>
 
             <ImageButton
                 android:background="@drawable/d3"
                 android:maxHeight="15dp"
                 android:maxWidth="15dp"
+                android:id="@+id/d3"
                 android:layout_margin="5dp"/>
 
             <ImageButton
                 android:background="@drawable/d4"
                 android:maxHeight="15dp"
                 android:maxWidth="15dp"
+                android:id="@+id/d4"
                 android:layout_margin="5dp"/>
 
             <ImageButton
                 android:background="@drawable/d5"
                 android:maxHeight="15dp"
                 android:maxWidth="15dp"
+                android:id="@+id/d5"
                 android:layout_margin="5dp"/>
 
             <ImageButton
                 android:background="@drawable/d6"
                 android:maxHeight="15dp"
                 android:maxWidth="15dp"
+                android:id="@+id/d6"
                 android:layout_margin="5dp"/>
 
 
