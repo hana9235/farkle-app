@@ -64,17 +64,17 @@
         </LinearLayout>
     <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="440dp"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal|center_vertical" >
 
         <GridLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:columnCount="2"
             android:rowCount="3"
-            android:layout_marginLeft="50dp"
-            android:layout_marginStart="50dp"
-            android:layout_marginTop="20dp"
-            android:id="@+id/rolledGrid" >
+            android:id="@+id/rolledGrid"
+            >
 
             <ImageButton
                 android:maxHeight="15dp"
