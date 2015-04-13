@@ -1,8 +1,148 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/play_bkg"
-    tools:context=".MainActivity" >
-</RelativeLayout>
+    tools:context=".MainActivity"
+
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        >
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginRight="25dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:id="@+id/PlayerName"
+            android:text="PLAYER NAME"
+            android:textSize="30sp"
+            android:layout_margin="10dp"
+            android:textColor="#ffffff"
+            android:textStyle="bold"
+
+            />
+
+            </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="end"
+            android:layout_marginEnd="10dp"
+            android:layout_marginRight="10dp" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text = "5400"
+                android:id="@+id/totalScore"
+                android:textColor="#ffffff"
+                android:textSize="25sp"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="500"
+                android:id="@+id/turnScore"
+                android:textColor="#ffffff"
+                android:textSize="25sp"/>
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <GridLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:columnCount="2"
+            android:rowCount="3"
+            android:layout_marginLeft="50dp"
+            android:layout_marginStart="50dp"
+            android:layout_marginTop="20dp"
+            android:id="@+id/rolledGrid" >
+
+            <ImageButton
+                android:maxHeight="15dp"
+                android:maxWidth="15dp"
+                android:background="@drawable/d1"
+                android:layout_margin="5dp"/>
+
+            <ImageButton
+                android:background="@drawable/d2"
+                android:maxHeight="15dp"
+                android:maxWidth="15dp"
+                android:layout_margin="5dp"/>
+
+            <ImageButton
+                android:background="@drawable/d3"
+                android:maxHeight="15dp"
+                android:maxWidth="15dp"
+                android:layout_margin="5dp"/>
+
+            <ImageButton
+                android:background="@drawable/d4"
+                android:maxHeight="15dp"
+                android:maxWidth="15dp"
+                android:layout_margin="5dp"/>
+
+            <ImageButton
+                android:background="@drawable/d5"
+                android:maxHeight="15dp"
+                android:maxWidth="15dp"
+                android:layout_margin="5dp"/>
+
+            <ImageButton
+                android:background="@drawable/d6"
+                android:maxHeight="15dp"
+                android:maxWidth="15dp"
+                android:layout_margin="5dp"/>
+
+
+            </GridLayout>
+        </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Show Held Dice"
+            />
+
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Roll Again"
+            />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="End Turn"
+            />
+
+
+        </LinearLayout>
+
+
+
+</LinearLayout>
