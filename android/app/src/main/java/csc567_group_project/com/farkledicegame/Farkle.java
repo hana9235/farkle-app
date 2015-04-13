@@ -37,7 +37,24 @@ public class Farkle {
             }
             p_list.add(p);
         }
+        
                 
+        // set player names to default "Player 1"
+        for (int i = 1; i <= p_list.size(); i++) {
+            Player renamed = p_list.get(i-1);
+            renamed.set_name("Player " + i);
+            if (renamed.get_ai() ) {
+                renamed.set_name(renamed.get_name() + " (AI)");
+            }
+            p_list.set(i-1, renamed);
+        }
+        
+        System.out.println("\n\nPLAYERS NAMES");
+        for (int j = 0; j < p_list.size(); j++) {
+            System.out.println(p_list.get(j).get_name());
+        }
+        
+                        
         // create that list, pass it to Game();
         System.out.println("Let's play!");
         Game farkle = new Game(p_list);
@@ -60,20 +77,7 @@ class Game {
         this.game_won = false;
         
         // an index to be used for the player_list
-        this.current_player = 0;
-        
-        // check that AI status is set correctly
-        for (int i = 0; i < p_list.size(); i++) {
-            String s = "Player " + i + " is ";
-            if (p_list.get(i).get_ai() == true) {
-                s += "AI";
-            }
-            else {
-                s += "human";
-            }
-            System.out.println(s);
-        }
-        
+        this.current_player = 0;     
 
     }
     
@@ -475,7 +479,11 @@ class Player {
     }
     
     public void set_name(String s) {
-        this.name = s;
+        this.playerName = s;
+    }
+    
+    public String get_name() {
+        return this.playerName;
     }
     
     public void set_to_ai() {
