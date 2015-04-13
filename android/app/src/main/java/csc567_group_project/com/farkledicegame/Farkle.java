@@ -1,3 +1,4 @@
+package csc567_group_project.com.farkledicegame;
 
 import java.io.*;
 import java.util.*;
@@ -102,6 +103,9 @@ class Game {
             ArrayList<Integer> roll_results = calculate_roll_value(p);
             int roll_score = roll_results.get(0);
             int scoring_dice = roll_results.get(1);
+
+            // UPDATE UI WITH DICE
+            // IF BUST, GRAY OUT ROLL AGAIN
 
             // check for no points
             if (roll_score == 0) {
@@ -279,6 +283,8 @@ class Game {
         else {
             this.current_player = 0;
         }
+
+        // UPDATE UI WITH CURRENT PLAYER'S INFO, either all blank dice or roll them immediately
     }
     
     public void show_score(Player p) {
@@ -357,9 +363,7 @@ class Game {
                     }
                 }
                     p.hold(dice_to_hold);
-                    //turn_total += roll_score;
-                
-                //System.out.println("\n\n DICETOHOLD = " + dice_to_hold + "\n\n");
+                    // UPDATE UI, move held dice from play screen to the hold area
                 return true;
             }
         }
@@ -403,6 +407,8 @@ class Game {
                             }
                         }
                         p.hold(dice_to_hold);
+
+                        // UPDATE UI
                         if (p.dice_list.size() == 0) {
                             // all 6 dice are held
                             p.reset_dice();

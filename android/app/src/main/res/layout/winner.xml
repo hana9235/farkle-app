@@ -1,27 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@drawable/winner_screen"
-    tools:context=".MainActivity" >
-
-    <!-- to be used to display the winners -->
-    <LinearLayout
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:gravity="center_horizontal|center_vertical">
+        android:gravity="center_horizontal|center_vertical"
+        android:orientation="vertical"
+        android:background="@drawable/winner_screen">
 
         <ListView
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_margin="100dp"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="0dp"
             android:background="#000000">
-
-
 
             </ListView>
 
-    </LinearLayout>
+        <ImageButton
+            android:id="@+id/returnToStart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="Start a new game"
+            android:src="@drawable/start_button"
+    android:scaleType="fitXY"
+    android:scaleX="0.5"
+    android:scaleY="0.5"
+            android:layout_marginTop="15dp"
+            android:background="@drawable/blankDie"
+            tools:ignore="HardcodedText" />
 
-</RelativeLayout>
+</LinearLayout>
+
