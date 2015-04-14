@@ -106,7 +106,7 @@ class Game {
             int roll_score = roll_results.get(0);
             int scoring_dice = roll_results.get(1);
 
-            // UPDATE UI WITH DICE
+            // UPDATE UI WITH DICE ROLL RESULTS
             // IF BUST, GRAY OUT ROLL AGAIN
 
             // check for no points
@@ -153,9 +153,10 @@ class Game {
                 break;
             }
         }
-        return;
+        // end of function, no return because it's void
     }
-    
+
+
     public ArrayList<Integer> calculate_roll_value(Player p) {
         ArrayList<Integer> results = new ArrayList<Integer>();
         // result will have two values, the point value and the number of scoring dice

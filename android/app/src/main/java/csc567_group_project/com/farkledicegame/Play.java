@@ -44,7 +44,7 @@ public class Play extends ActionBarActivity {
 
         ArrayList<Player> players = createPlayers(totalPlayers, numHumans);
         Game farkle = new Game(players);
-        farkle.play();
+        //farkle.play();
     }
 
 
