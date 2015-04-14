@@ -43,8 +43,11 @@ public class Play extends ActionBarActivity {
         int numHumans = fromSetup.getIntExtra("NUMHUMANS", 1); // default to 1 human out of 2 players
 
         ArrayList<Player> players = createPlayers(totalPlayers, numHumans);
+        //updateScreen(players, currentPlayer, );
         Game farkle = new Game(players);
         //farkle.play();
+        // START THREAD FOR farkle.play();
+        // GET UPDATES FROM THE GAME CODE AS IT GOES
     }
 
 

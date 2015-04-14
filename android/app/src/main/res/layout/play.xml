@@ -66,58 +66,69 @@
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="440dp"
+        android:layout_width="match_parent"
+        android:layout_height="400dp"
         android:orientation="horizontal"
         android:gravity="center_horizontal|center_vertical" >
 
         <GridLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_gravity="center_horizontal|center_vertical"
             android:columnCount="2"
             android:rowCount="3"
+            android:layout_marginRight="50dp"
+            android:layout_marginLeft="50dp"
+            android:layout_marginBottom="20dp"
+
             android:id="@+id/rolledGrid"
             >
 
             <ImageButton
-                android:maxHeight="15dp"
-                android:maxWidth="15dp"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
                 android:id="@+id/d1"
                 android:background="@drawable/d1"
+                android:layout_gravity="right|end|center"
                 android:layout_margin="15dp"/>
 
             <ImageButton
                 android:background="@drawable/d2"
-                android:maxHeight="15dp"
-                android:maxWidth="15dp"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_gravity="center"
                 android:id="@+id/d2"
                 android:layout_margin="15dp"/>
 
             <ImageButton
                 android:background="@drawable/d3"
-                android:maxHeight="15dp"
-                android:maxWidth="15dp"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_gravity="center"
                 android:id="@+id/d3"
                 android:layout_margin="15dp"/>
 
             <ImageButton
                 android:background="@drawable/d4"
-                android:maxHeight="15dp"
-                android:maxWidth="15dp"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_gravity="center"
                 android:id="@+id/d4"
                 android:layout_margin="15dp"/>
 
             <ImageButton
                 android:background="@drawable/d5"
-                android:maxHeight="15dp"
-                android:maxWidth="15dp"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_gravity="center"
                 android:id="@+id/d5"
                 android:layout_margin="15dp"/>
 
             <ImageButton
                 android:background="@drawable/d6"
-                android:maxHeight="15dp"
-                android:maxWidth="15dp"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_gravity="center"
                 android:id="@+id/d6"
                 android:layout_margin="15dp"/>
 
