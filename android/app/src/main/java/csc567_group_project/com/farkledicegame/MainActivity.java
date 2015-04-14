@@ -6,14 +6,25 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
 
 
 public class MainActivity extends ActionBarActivity {
+    ImageButton startSetup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        startSetup = (ImageButton) findViewById(R.id.start_button);
+        startSetup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                jumpToSetup();
+            }
+        });
     }
 
 
@@ -39,4 +50,9 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
+
+    public void jumpToSetup() {
+        Intent toSetup = new Intent(this, Setup.class);
+        startActivity(toSetup);
+    }
 }

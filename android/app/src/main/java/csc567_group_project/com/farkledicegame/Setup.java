@@ -9,7 +9,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
-
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 
@@ -34,8 +34,7 @@ public class Setup extends ActionBarActivity {
               int humans = Integer.parseInt(numHumans.getText().toString());
               int AIs = Integer.parseInt(numAI.getText().toString());
               int totalPlayers = humans + AIs;
-              ArrayList<Player> p_list = createPlayers(totalPlayers, AIs);
-              beginGame(p_list);
+              beginGame(totalPlayers, humans);
             }
         });
 
@@ -50,15 +49,14 @@ public class Setup extends ActionBarActivity {
     }
 
 
-    public ArrayList<Player> createPlayers(int totalPlayers, int numAIs) {
-        return new ArrayList<Player>();
-    }
 
-    public void beginGame(ArrayList<Player> p_list) {
+
+    public void beginGame(int totalPlayers, int humans) {
 
 //        Game farkle = new Game(p_list);
         Intent playgame = new Intent(this, Play.class);
-        playgame.putExtra("PLAYERLIST", p_list);
+        playgame.putExtra("TOTAL", totalPlayers);
+        playgame.putExtra("NUMHUMANS", humans);
         startActivity(playgame);
     }
 

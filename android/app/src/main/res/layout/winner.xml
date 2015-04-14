@@ -10,7 +10,7 @@
 
         <ListView
             android:layout_width="300dp"
-            android:layout_height="wrap_content"
+            android:layout_height="400dp"
             android:layout_margin="0dp"
             android:background="#000000">
 
@@ -18,15 +18,11 @@
 
         <ImageButton
             android:id="@+id/returnToStart"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="280dp"
+            android:layout_height="100dp"
             android:contentDescription="Start a new game"
-            android:src="@drawable/start_button"
-    android:scaleType="fitXY"
-    android:scaleX="0.5"
-    android:scaleY="0.5"
             android:layout_marginTop="15dp"
-            android:background="@drawable/blankDie"
+            android:background="@drawable/start_button"
             tools:ignore="HardcodedText" />
 
 </LinearLayout>

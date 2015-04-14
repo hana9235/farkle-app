@@ -17,20 +17,22 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginRight="25dp">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:id="@+id/PlayerName"
-            android:text="PLAYER NAME"
-            android:textSize="30sp"
-            android:layout_margin="10dp"
-            android:textColor="#ffffff"
-            android:textStyle="bold"
+            android:layout_marginRight="25dp"
+            android:layout_marginEnd="25dp">
 
-            />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:id="@+id/playerName"
+                android:text="PLAYER NAME"
+                android:textSize="30sp"
+                android:layout_margin="10dp"
+                android:textColor="#ffffff"
+                android:textStyle="bold"
 
-            </LinearLayout>
+                />
+
+        </LinearLayout>
 
 
         <LinearLayout
@@ -61,7 +63,8 @@
             </LinearLayout>
 
 
-        </LinearLayout>
+    </LinearLayout>
+
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="440dp"
@@ -130,6 +133,7 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:id="@+id/showHeld"
             android:text="Show Held Dice"
             />
 
@@ -137,17 +141,19 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:id="@+id/rollAgain"
             android:text="Roll Again"
             />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:id="@+id/endTurn"
             android:text="End Turn"
             />
 
 
-        </LinearLayout>
+    </LinearLayout>
 
 
 
