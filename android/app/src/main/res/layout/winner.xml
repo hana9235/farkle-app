@@ -12,12 +12,13 @@
             android:layout_width="300dp"
             android:layout_height="400dp"
             android:layout_margin="0dp"
-            android:background="#000000">
+            android:background="#000000"
+            android:id="@+id/winners">
 
             </ListView>
 
         <ImageButton
-            android:id="@+id/returnToStart"
+            android:id="@+id/return_to_start"
             android:layout_width="280dp"
             android:layout_height="100dp"
             android:contentDescription="Start a new game"

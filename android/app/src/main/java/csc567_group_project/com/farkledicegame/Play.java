@@ -4,10 +4,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
+import android.view.View;
 import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -38,13 +40,22 @@ public class Play extends ActionBarActivity {
         endTurn = (ImageButton) findViewById(R.id.endTurn);
         showHeld = (ImageButton) findViewById(R.id.showHeld);
 
-        Intent fromSetup= getIntent();
+        Intent fromSetup = getIntent();
         int totalPlayers = fromSetup.getIntExtra("TOTAL", 2); // default value is two players (1 human, 1 AI)
         int numHumans = fromSetup.getIntExtra("NUMHUMANS", 1); // default to 1 human out of 2 players
 
         ArrayList<Player> players = createPlayers(totalPlayers, numHumans);
         //updateScreen(players, currentPlayer, );
         Game farkle = new Game(players);
+        Toast.makeText(this, "TOTAL PLAYERS = " + totalPlayers, Toast.LENGTH_LONG).show();
+
+        showHeld.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // just a test to make sure the winner screen is accessible
+                toWinner();
+            }
+        });
         //farkle.play();
         // START THREAD FOR farkle.play();
         // GET UPDATES FROM THE GAME CODE AS IT GOES
@@ -76,4 +87,8 @@ public class Play extends ActionBarActivity {
     }
 
 
+    public void toWinner() {
+        Intent toWinner = new Intent(this, Winner.class);
+        startActivity(toWinner);
+    }
 }
