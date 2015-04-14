@@ -141,28 +141,38 @@
         android:layout_height="wrap_content">
 
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <ImageButton
+            android:layout_width="180dp"
+            android:layout_height="70dp"
             android:id="@+id/showHeld"
             android:text="Show Held Dice"
+            android:background="@drawable/showheld"
             />
 
 
-        <Button
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
+
+            android:gravity="right">
+        <ImageButton
+            android:layout_width="150dp"
+            android:layout_height="50dp"
+            android:background="@drawable/rollagain"
             android:id="@+id/rollAgain"
             android:text="Roll Again"
             />
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <ImageButton
+            android:layout_width="150dp"
+            android:layout_height="50dp"
+
+            android:background="@drawable/endturn"
             android:id="@+id/endTurn"
             android:text="End Turn"
             />
-
+        </LinearLayout>
 
     </LinearLayout>
 

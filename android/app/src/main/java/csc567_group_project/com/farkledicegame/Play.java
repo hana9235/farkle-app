@@ -13,9 +13,9 @@ import java.util.ArrayList;
 
 public class Play extends ActionBarActivity {
     GridLayout grid;
-    ImageButton d1, d2, d3, d4, d5, d6;
+    ImageButton d1, d2, d3, d4, d5, d6, rollAgain, endTurn, showHeld;
     TextView playerName, totalScore, turnScore;
-    Button rollAgain, endTurn, showHeld;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,9 +34,9 @@ public class Play extends ActionBarActivity {
         totalScore = (TextView) findViewById(R.id.totalScore);
         turnScore = (TextView) findViewById(R.id.turnScore);
 
-        rollAgain = (Button) findViewById(R.id.rollAgain);
-        endTurn = (Button) findViewById(R.id.endTurn);
-        showHeld = (Button) findViewById(R.id.showHeld);
+        rollAgain = (ImageButton) findViewById(R.id.rollAgain);
+        endTurn = (ImageButton) findViewById(R.id.endTurn);
+        showHeld = (ImageButton) findViewById(R.id.showHeld);
 
         Intent fromSetup= getIntent();
         int totalPlayers = fromSetup.getIntExtra("TOTAL", 2); // default value is two players (1 human, 1 AI)
