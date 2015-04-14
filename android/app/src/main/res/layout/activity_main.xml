@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/welcome_bkg"
+    android:background="@drawable/play_bkg"
     tools:context=".MainActivity" >
 
     <LinearLayout
@@ -10,17 +10,20 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:gravity="center"
-        android:orientation="vertical"
-        android:weightSum="1">
+        android:orientation="vertical">
 
 
+        <ImageView
+            android:layout_width="300dp"
+            android:layout_height="250dp"
+            android:background="@drawable/logo"/>
 
         <ImageButton
             android:id="@+id/start_button"
-            android:layout_width="250dp"
+            android:layout_width="270dp"
             android:layout_height="100dp"
             android:gravity="bottom"
-            android:layout_marginTop="180dp"
+            android:layout_marginTop="100dp"
             android:background="@drawable/new_game_button" />
 
     </LinearLayout>
