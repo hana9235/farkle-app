@@ -22,7 +22,7 @@
             android:layout_height="100dp"
             android:contentDescription="Start a new game"
             android:layout_marginTop="15dp"
-            android:background="@drawable/start_button"
+            android:background="@drawable/new_game_button"
             tools:ignore="HardcodedText" />
 
 </LinearLayout>
