@@ -56,6 +56,8 @@ public class Play extends ActionBarActivity {
                 toWinner();
             }
         });
+
+
         //farkle.play();
         // START THREAD FOR farkle.play();
         // GET UPDATES FROM THE GAME CODE AS IT GOES

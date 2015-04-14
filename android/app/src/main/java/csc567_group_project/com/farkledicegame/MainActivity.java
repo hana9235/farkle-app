@@ -11,18 +11,26 @@ import android.widget.ImageButton;
 
 
 public class MainActivity extends ActionBarActivity {
-    ImageButton startSetup;
+    ImageButton startSetup, exitButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        exitButton = (ImageButton) findViewById(R.id.exit_button);
         startSetup = (ImageButton) findViewById(R.id.start_button);
+
         startSetup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 jumpToSetup();
+            }
+        });
+        exitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                exitGame();
             }
         });
     }
@@ -54,5 +62,10 @@ public class MainActivity extends ActionBarActivity {
     public void jumpToSetup() {
         Intent toSetup = new Intent(this, Setup.class);
         startActivity(toSetup);
+    }
+
+    public void exitGame() {
+        finish();
+        System.exit(0);
     }
 }

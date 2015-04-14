@@ -28,5 +28,15 @@
             android:layout_marginTop="100dp"
             android:background="@drawable/new_game_button" />
 
+        <ImageButton
+            android:id="@+id/exit_button"
+            android:layout_width="270dp"
+            android:layout_height="100dp"
+            android:gravity="bottom|center_horizontal"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/exitbutton" />
+
+
+
     </LinearLayout>
 </RelativeLayout>

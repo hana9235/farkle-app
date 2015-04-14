@@ -9,6 +9,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
@@ -31,10 +33,11 @@ public class Setup extends ActionBarActivity {
         startGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-              int humans = Integer.parseInt(numHumans.getText().toString());
-              int AIs = Integer.parseInt(numAI.getText().toString());
-              int totalPlayers = humans + AIs;
-              beginGame(totalPlayers, humans);
+            int humans = Integer.parseInt(numHumans.getText().toString());
+            int AIs = Integer.parseInt(numAI.getText().toString());
+            int totalPlayers = humans + AIs;
+            beginGame(totalPlayers, humans);
+
             }
         });
 
@@ -53,11 +56,16 @@ public class Setup extends ActionBarActivity {
 
     public void beginGame(int totalPlayers, int humans) {
 
+        if (totalPlayers > 6) {
+            Toast.makeText(this, "There is a maximum of 6 players.", Toast.LENGTH_LONG).show();
+        }
+        else {
 //        Game farkle = new Game(p_list);
-        Intent playgame = new Intent(this, Play.class);
-        playgame.putExtra("TOTAL", totalPlayers);
-        playgame.putExtra("NUMHUMANS", humans);
-        startActivity(playgame);
+            Intent playgame = new Intent(this, Play.class);
+            playgame.putExtra("TOTAL", totalPlayers);
+            playgame.putExtra("NUMHUMANS", humans);
+            startActivity(playgame);
+        }
     }
 
 }
