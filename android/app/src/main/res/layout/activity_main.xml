@@ -9,14 +9,15 @@
         android:id="@+id/LinearLayout1"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:gravity="center"
+        android:gravity="center_horizontal"
         android:orientation="vertical">
 
 
         <ImageView
             android:layout_width="300dp"
             android:layout_height="250dp"
-            android:background="@drawable/logo"/>
+            android:background="@drawable/logo"
+            android:layout_gravity="top|center"/>
 
         <ImageButton
             android:id="@+id/start_button"
