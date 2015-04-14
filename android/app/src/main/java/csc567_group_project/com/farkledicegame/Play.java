@@ -91,6 +91,7 @@ public class Play extends ActionBarActivity {
 
     public void toWinner() {
         Intent toWinner = new Intent(this, Winner.class);
+        finish();
         startActivity(toWinner);
     }
 }

@@ -61,6 +61,7 @@ public class MainActivity extends ActionBarActivity {
 
     public void jumpToSetup() {
         Intent toSetup = new Intent(this, Setup.class);
+        finish();
         startActivity(toSetup);
     }
 

@@ -64,6 +64,7 @@ public class Setup extends ActionBarActivity {
             Intent playgame = new Intent(this, Play.class);
             playgame.putExtra("TOTAL", totalPlayers);
             playgame.putExtra("NUMHUMANS", humans);
+            finish();
             startActivity(playgame);
         }
     }
