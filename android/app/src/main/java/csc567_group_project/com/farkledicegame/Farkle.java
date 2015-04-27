@@ -107,7 +107,7 @@ class Game {
             int scoring_dice = roll_results.get(1);
 
             // UPDATE UI WITH DICE ROLL RESULTS
-            // IF BUST, GRAY OUT ROLL AGAIN
+            // IF BUST, DISABLE ROLL AGAIN BUTTON, hide it?
 
             // check for no points
             if (roll_score == 0) {

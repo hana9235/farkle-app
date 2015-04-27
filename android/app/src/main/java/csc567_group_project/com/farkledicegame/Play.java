@@ -2,6 +2,7 @@ package csc567_group_project.com.farkledicegame;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.View;
@@ -17,6 +18,7 @@ public class Play extends ActionBarActivity {
     GridLayout grid;
     ImageButton d1, d2, d3, d4, d5, d6, rollAgain, endTurn, showHeld;
     TextView playerName, totalScore, turnScore;
+    Handler gameToUI;
 
 
     @Override
@@ -39,6 +41,8 @@ public class Play extends ActionBarActivity {
         rollAgain = (ImageButton) findViewById(R.id.rollAgain);
         endTurn = (ImageButton) findViewById(R.id.endTurn);
         showHeld = (ImageButton) findViewById(R.id.showHeld);
+
+        gameToUI = new Handler();
 
         Intent fromSetup = getIntent();
         int totalPlayers = fromSetup.getIntExtra("TOTAL", 2); // default value is two players (1 human, 1 AI)
@@ -74,7 +78,7 @@ public class Play extends ActionBarActivity {
         // or set the same onclicklistener for every d* button, which needs to figure out which
         // position it's in.  Doing this through the grid would be best, but the design will
         // need to be changed a little bit
-        
+
 
         //farkle.play();
         // START THREAD FOR farkle.play();
