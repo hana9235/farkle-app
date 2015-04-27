@@ -156,7 +156,6 @@ class Game {
         // end of function, no return because it's void
     }
 
-
     public ArrayList<Integer> calculate_roll_value(Player p) {
         ArrayList<Integer> results = new ArrayList<Integer>();
         // result will have two values, the point value and the number of scoring dice
@@ -373,8 +372,7 @@ class Game {
         }
         return false;  // not rolling again    
     }
-    
-    
+
     public boolean ai_decision(Player p, int roll_score, int scoring_dice) { // list or int of scoring dice?  need to know which ones 
         System.out.println("Current player is an AI, decide what to do with your roll.");
         ArrayList<Integer> dice_to_hold = new ArrayList<Integer>();
@@ -463,9 +461,6 @@ class Game {
         }
     }
 }
-
-
-
 
 class Player {
     String playerName;
