@@ -150,11 +150,12 @@ public class Play extends ActionBarActivity {
         startActivity(toWinner);
     }
 
-    public void updateTurnScore(TextView turnScore, int points) {
+    public void updateTurnScore(String pts) {
         // parseInt from the current field, or just pull the current turn score
         int prevScore = Integer.parseInt(turnScore.getText().toString());
-        points = points + prevScore;
-        String pts = Integer.toString(points);
+        int rollScore = Integer.parseInt(pts);
+        int points = rollScore + prevScore;
+        pts = Integer.toString(points);
         turnScore.setText(pts);
     }
 
@@ -350,17 +351,19 @@ public class Play extends ActionBarActivity {
         ArrayList<Integer> roll_results = calculate_roll_value(p);
         ArrayList<Die> rolled = p.get_rolled_dice();
 
-        if (roll_results.get(1) < 1) {
+        if (roll_results.get(1) == 0) {
+            // no scoring dice
             Toast.makeText(this, "Bust!",Toast.LENGTH_LONG).show();
             turnScore.setText("0");
             rollAgain.setClickable(false);
         } else {
             String turnPts = Integer.toString(roll_results.get(0));
-            turnScore.setText(turnPts);
+            updateTurnScore(turnPts);
+            //turnScore.setText(turnPts);
         }
 
         updateDice(p, diceView);
-        updateTurnScore(turnScore, Integer.parseInt(turnScore.getText().toString()));
+        //updateTurnScore(turnScore, Integer.parseInt(turnScore.getText().toString()));
     }
 
     public void endTurn() {
@@ -382,6 +385,7 @@ public class Play extends ActionBarActivity {
         advancePlayer();
         updateViews();
 
+        rollAgain.setClickable(true); // in case the user busted and rollAgain was disabled
         rollAgain();
     }
 
