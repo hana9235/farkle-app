@@ -536,6 +536,25 @@ class Player {
             this.dice_list.remove(index);
         }
 
+    } public void holdOne(int position) {
+        // move the selected dice from the dice_list to
+        // the held_dice list, then remove from dice_list
+        this.held_dice.add(this.dice_list.get(position));
+        //this.dice_list.remove(position);
+    }
+
+    public void takeHeldFromRolling() {
+        // go through the held list and remove those from the rolling dice
+        for(int i = 0; i < this.held_dice.size(); i++) {
+            int held_face = this.held_dice.get(i).get_value();
+            for(int j = this.dice_list.size() - 1; j >= 0; j--) {
+                // iterate over the dice list backward to avoid index errors
+                int rolling_face = this.dice_list.get(j).get_value();
+                if (held_face == rolling_face) {
+                    this.dice_list.remove(j);
+                }
+            }
+        }
     }
 
     public void reset_dice() {
@@ -569,6 +588,9 @@ class Player {
         return this.dice_list;
     }
 
+    public ArrayList<Die> get_held_dice() {
+        return this.held_dice;
+    }
 
     public static void main(String[] args) {
         Player p = new Player();

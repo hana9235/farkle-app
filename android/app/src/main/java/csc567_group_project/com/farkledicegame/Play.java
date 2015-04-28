@@ -22,12 +22,11 @@ public class Play extends ActionBarActivity {
     ArrayList<Player> players;
     ImageButton d1, d2, d3, d4, d5, d6, rollAgain, endTurn, showHeld;
     TextView playerName, totalScore, turnScore;
-    Handler gameToUI;
 
     // game vars here
     boolean game_won;
     final int pointsToWin = 10000;
-    int turnTotal, totalPlayers, currentPlayer;
+    int turnTotal, rollScore, totalPlayers, currentPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,14 +75,25 @@ public class Play extends ActionBarActivity {
         showHeld.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // just a test to make sure the winner screen is accessible
-                toWinner();
+                // show an alertdialog with a listview of the p.get_held_dice() contents
             }
         });
 
         rollAgain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Player p = players.get(currentPlayer);
+                p.takeHeldFromRolling(); // update the rolling dice list
+
+                // adjust the turn total here, get the actual value by: score = total - rolling dice
+                // this seems backward at first, but it is right
+                ArrayList<Integer> updatedTurnScore = calculate_roll_value(p);
+                int updatedScore = updatedTurnScore.get(0);
+
+                int oldTurnScore = Integer.parseInt(turnScore.getText().toString());
+                updateTurnScore(Integer.toString((oldTurnScore - updatedScore)));
+
+
                 rollAgain();
             }
         });
@@ -152,9 +162,11 @@ public class Play extends ActionBarActivity {
 
     public void updateTurnScore(String pts) {
         // parseInt from the current field, or just pull the current turn score
+        Player p = players.get(currentPlayer);
+
         int prevScore = Integer.parseInt(turnScore.getText().toString());
-        int rollScore = Integer.parseInt(pts);
-        int points = rollScore + prevScore;
+        int rolledScore = Integer.parseInt(pts);
+        int points = rolledScore + prevScore;
         pts = Integer.toString(points);
         turnScore.setText(pts);
     }
@@ -346,6 +358,7 @@ public class Play extends ActionBarActivity {
 
         Player p = players.get(currentPlayer);
 
+
         p.roll_dice();
 
         ArrayList<Integer> roll_results = calculate_roll_value(p);
@@ -356,14 +369,17 @@ public class Play extends ActionBarActivity {
             Toast.makeText(this, "Bust!",Toast.LENGTH_LONG).show();
             turnScore.setText("0");
             rollAgain.setClickable(false);
-        } else {
+        }
+        else if (roll_results.get(1) == p.get_rolled_dice().size()) {
+            Toast.makeText(this, "All 6 dice scored, you may roll them all again.", Toast.LENGTH_LONG).show();
+            p.reset_dice();
+        }
+        else {
             String turnPts = Integer.toString(roll_results.get(0));
             updateTurnScore(turnPts);
-            //turnScore.setText(turnPts);
         }
 
         updateDice(p, diceView);
-        //updateTurnScore(turnScore, Integer.parseInt(turnScore.getText().toString()));
     }
 
     public void endTurn() {
@@ -423,6 +439,8 @@ public class Play extends ActionBarActivity {
         // so pass that index back to game, which will move that die to the player's hold list
         ImageButton clicked = diceView.get(position);
         clicked.setClickable(false);
+        Player p = players.get(currentPlayer);
+        p.holdOne(position);
         rollAgain.setClickable(true);
         clicked.setBackgroundResource(R.drawable.blankdie);
 
