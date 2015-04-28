@@ -364,14 +364,20 @@ public class Play extends ActionBarActivity {
         ArrayList<Integer> roll_results = calculate_roll_value(p);
         ArrayList<Die> rolled = p.get_rolled_dice();
 
+        // player must hold dice to keep rolling, or end turn
+        rollAgain.setClickable(false);
+        rollAgain.setBackgroundResource(R.drawable.rollagaindisabled);
+
         if (roll_results.get(1) == 0) {
             // no scoring dice
             Toast.makeText(this, "Bust!",Toast.LENGTH_LONG).show();
             turnScore.setText("0");
-            rollAgain.setClickable(false);
+
         }
         else if (roll_results.get(1) == p.get_rolled_dice().size()) {
-            Toast.makeText(this, "All 6 dice scored, you may roll them all again.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "All 6 dice have scored, you may roll them all again.", Toast.LENGTH_LONG).show();
+
+            //TODO: THIS RESET IS WHAT SCREWS UP AND SHOWS ALL 1s
             p.reset_dice();
         }
         else {
@@ -402,6 +408,7 @@ public class Play extends ActionBarActivity {
         updateViews();
 
         rollAgain.setClickable(true); // in case the user busted and rollAgain was disabled
+        rollAgain.setBackgroundResource(R.drawable.rollagain);
         rollAgain();
     }
 
@@ -442,6 +449,7 @@ public class Play extends ActionBarActivity {
         Player p = players.get(currentPlayer);
         p.holdOne(position);
         rollAgain.setClickable(true);
+        rollAgain.setBackgroundResource(R.drawable.rollagain);
         clicked.setBackgroundResource(R.drawable.blankdie);
 
     }
