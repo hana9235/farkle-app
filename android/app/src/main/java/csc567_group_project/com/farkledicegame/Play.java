@@ -52,6 +52,19 @@ public class Play extends ActionBarActivity {
         diceView.add(d6);
 
 
+        for(int i = 0; i < diceView.size(); i++) {
+            final int diePosition = i;
+            ImageButton d = diceView.get(i);
+            d.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    holdDie(diePosition);
+                }
+            });
+            diceView.set(i, d);
+        }
+
+
         playerName = (TextView) findViewById(R.id.playerName);
         totalScore = (TextView) findViewById(R.id.totalScore);
         turnScore = (TextView) findViewById(R.id.turnScore);
@@ -137,10 +150,6 @@ public class Play extends ActionBarActivity {
         startActivity(toWinner);
     }
 
-    public void setPlayerName(TextView nameField, Player p) {
-        nameField.setText(p.get_name());
-    }
-
     public void updateTurnScore(TextView turnScore, int points) {
         // parseInt from the current field, or just pull the current turn score
         int prevScore = Integer.parseInt(turnScore.getText().toString());
@@ -167,26 +176,32 @@ public class Play extends ActionBarActivity {
             switch(d.get_value()) {
                 case 1:
                     currentDie.setBackgroundResource(R.drawable.d1);
+                    currentDie.setClickable(true);
                     // @drawable/d1
                     break;
                 case 2:
                     currentDie.setBackgroundResource(R.drawable.d2);
+                    currentDie.setClickable(true);
                     // @drawable/d2
                     break;
                 case 3:
                     currentDie.setBackgroundResource(R.drawable.d3);
+                    currentDie.setClickable(true);
                     // @drawable/d3
                     break;
                 case 4:
                     currentDie.setBackgroundResource(R.drawable.d4);
+                    currentDie.setClickable(true);
                     // @drawable/d4
                     break;
                 case 5:
                     currentDie.setBackgroundResource(R.drawable.d5);
+                    currentDie.setClickable(true);
                     // @drawable/d5
                     break;
                 case 6:
                     currentDie.setBackgroundResource(R.drawable.d6);
+                    currentDie.setClickable(true);
                     // @drawable/d6
                     break;
                 default:
@@ -194,7 +209,12 @@ public class Play extends ActionBarActivity {
                     currentDie.setBackgroundResource(R.drawable.blankdie);
                     break;
             }
-
+        }
+        // fill the rest with blanks
+        for(int j = dice.size(); j < diceView.size(); j++) {
+            ImageButton d = diceView.get(j);
+            d.setBackgroundResource(R.drawable.blankdie);
+            diceView.set(j, d);
         }
     }
 
@@ -348,23 +368,43 @@ public class Play extends ActionBarActivity {
         // turn points are added to total (IF the user is over the 1000 point entry threshold)
         // p.reset_dice()
         // next_player()
-        // THOSE FUNCTIONS ARE CALLED IN THE ACTUAL GAME CODE, BUT THAT MAY NEED TO BE CHANGED
         Player p = players.get(currentPlayer);
 
         p.reset_dice();
-        if (p.get_score() > 10000) {
+        int turnTotal = Integer.parseInt(turnScore.getText().toString());
+        updateTotalScore(turnTotal);
+
+        if (p.get_score() >= 10000) {
             toWinner();
+            return;
         }
 
         advancePlayer();
         updateViews();
 
-        Toast.makeText(this, "Clicked end turn", Toast.LENGTH_LONG).show();
+        rollAgain();
     }
+
+    public void updateTotalScore(int points) {
+        Player p = players.get(currentPlayer);
+        if(p.get_score() >= 1000) { // already on board
+            p.add_to_score(points);
+        } else {
+            // not on board, did they make the threshold?
+            if (points >= 1000) {
+                p.add_to_score(points);
+            }
+            else {
+                Toast.makeText(this, "Not enough to get on the board, sorry!", Toast.LENGTH_LONG).show();
+            }
+        }
+
+    }
+
 
     public void updateViews() {
         Player p = players.get(currentPlayer);
-        setPlayerName(playerName, p);
+        playerName.setText(p.get_name());
         String playerTotalScore = Integer.toString(p.get_score());
         totalScore.setText(playerTotalScore);
         turnScore.setText("0");
@@ -377,6 +417,10 @@ public class Play extends ActionBarActivity {
         //  2  3
         //  4  5
         // so pass that index back to game, which will move that die to the player's hold list
-        Toast.makeText(this, "Clicked on position" + position, Toast.LENGTH_LONG).show();
+        ImageButton clicked = diceView.get(position);
+        clicked.setClickable(false);
+        rollAgain.setClickable(true);
+        clicked.setBackgroundResource(R.drawable.blankdie);
+
     }
 }
