@@ -22,6 +22,7 @@ public class Play extends ActionBarActivity {
     ArrayList<Player> players;
     ImageButton d1, d2, d3, d4, d5, d6, rollAgain, endTurn, showHeld;
     TextView playerName, totalScore, turnScore;
+    boolean viewingHeld;
 
     // game vars here
     boolean game_won;
@@ -72,10 +73,23 @@ public class Play extends ActionBarActivity {
         endTurn = (ImageButton) findViewById(R.id.endTurn);
         showHeld = (ImageButton) findViewById(R.id.showHeld);
 
+        viewingHeld = false;
+
         showHeld.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // show an alertdialog with a listview of the p.get_held_dice() contents
+                if (viewingHeld) {
+                    viewingHeld = false;
+                    showHeld.setBackgroundResource(R.drawable.showheld);
+                    updateDice(players.get(currentPlayer).get_rolled_dice(), diceView, viewingHeld);
+
+                } else {
+                    viewingHeld = true;
+                    showHeld.setBackgroundResource(R.drawable.showrolled);
+                    updateDice(players.get(currentPlayer).get_held_dice(), diceView, viewingHeld);
+                }
+
             }
         });
 
@@ -83,7 +97,6 @@ public class Play extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 Player p = players.get(currentPlayer);
-                p.takeHeldFromRolling(); // update the rolling dice list
 
                 // adjust the turn total here, get the actual value by: score = total - rolling dice
                 // this seems backward at first, but it is right
@@ -171,16 +184,12 @@ public class Play extends ActionBarActivity {
         turnScore.setText(pts);
     }
 
-    public void updateDice(Player p, ArrayList<ImageButton> diceView) {
+    public void updateDice(ArrayList<Die> dice, ArrayList<ImageButton> diceView, boolean heldDice) {
         // get the list of dice from p  (p.get_rolled_dice())
         // find the face values of the dice and draw the correct die in the grid
         // so if a player rolls three dice and gets "1 4 3", then grid should display in this order:
         //  1  4
         //  3
-        // The rest should be empty (there is a @drawable/blankdie you can use to fill the space)
-        // My immediate idea for the choosing of which die to draw is with a switch/case where
-        // the default is the blankdie
-        ArrayList<Die> dice = p.get_rolled_dice();
 
         for (int i = 0; i < dice.size(); i++) {
             Die d = dice.get(i);
@@ -188,32 +197,56 @@ public class Play extends ActionBarActivity {
 
             switch(d.get_value()) {
                 case 1:
-                    currentDie.setBackgroundResource(R.drawable.d1);
+                    if(heldDice) {
+                        currentDie.setBackgroundResource(R.drawable.heldd1);
+                    } else {
+                        currentDie.setBackgroundResource(R.drawable.d1);
+                    }
                     currentDie.setClickable(true);
                     // @drawable/d1
                     break;
                 case 2:
-                    currentDie.setBackgroundResource(R.drawable.d2);
+                    if(heldDice) {
+                        currentDie.setBackgroundResource(R.drawable.heldd2);
+                    } else {
+                        currentDie.setBackgroundResource(R.drawable.d2);
+                    }
                     currentDie.setClickable(true);
                     // @drawable/d2
                     break;
                 case 3:
-                    currentDie.setBackgroundResource(R.drawable.d3);
+                    if(heldDice) {
+                        currentDie.setBackgroundResource(R.drawable.heldd3);
+                    } else {
+                        currentDie.setBackgroundResource(R.drawable.d3);
+                    }
                     currentDie.setClickable(true);
                     // @drawable/d3
                     break;
                 case 4:
-                    currentDie.setBackgroundResource(R.drawable.d4);
+                    if(heldDice) {
+                        currentDie.setBackgroundResource(R.drawable.heldd4);
+                    } else {
+                        currentDie.setBackgroundResource(R.drawable.d4);
+                    }
                     currentDie.setClickable(true);
                     // @drawable/d4
                     break;
                 case 5:
-                    currentDie.setBackgroundResource(R.drawable.d5);
+                    if(heldDice) {
+                        currentDie.setBackgroundResource(R.drawable.heldd5);
+                    } else {
+                        currentDie.setBackgroundResource(R.drawable.d5);
+                    }
                     currentDie.setClickable(true);
                     // @drawable/d5
                     break;
                 case 6:
-                    currentDie.setBackgroundResource(R.drawable.d6);
+                    if(heldDice) {
+                        currentDie.setBackgroundResource(R.drawable.heldd6);
+                    } else {
+                        currentDie.setBackgroundResource(R.drawable.d6);
+                    }
                     currentDie.setClickable(true);
                     // @drawable/d6
                     break;
@@ -227,6 +260,9 @@ public class Play extends ActionBarActivity {
         for(int j = dice.size(); j < diceView.size(); j++) {
             ImageButton d = diceView.get(j);
             d.setBackgroundResource(R.drawable.blankdie);
+            d.setClickable(false);
+
+            // reset/update the imagebutton
             diceView.set(j, d);
         }
     }
@@ -357,7 +393,7 @@ public class Play extends ActionBarActivity {
         // how to do this for the AI player?
 
         Player p = players.get(currentPlayer);
-
+        boolean allScored = false;
 
         p.roll_dice();
 
@@ -376,16 +412,19 @@ public class Play extends ActionBarActivity {
         }
         else if (roll_results.get(1) == p.get_rolled_dice().size()) {
             Toast.makeText(this, "All 6 dice have scored, you may roll them all again.", Toast.LENGTH_LONG).show();
-
-            //TODO: THIS RESET IS WHAT SCREWS UP AND SHOWS ALL 1s
-            p.reset_dice();
+            rollAgain.setBackgroundResource(R.drawable.rollagain);
+            rollAgain.setClickable(true);
+            allScored = true;
         }
         else {
             String turnPts = Integer.toString(roll_results.get(0));
             updateTurnScore(turnPts);
         }
 
-        updateDice(p, diceView);
+        updateDice(p.get_rolled_dice(), diceView, false);
+        if (allScored) {
+            p.reset_dice();
+        }
     }
 
     public void endTurn() {
@@ -452,5 +491,6 @@ public class Play extends ActionBarActivity {
         rollAgain.setBackgroundResource(R.drawable.rollagain);
         clicked.setBackgroundResource(R.drawable.blankdie);
 
+        //p.takeHeldFromRolling();
     }
 }

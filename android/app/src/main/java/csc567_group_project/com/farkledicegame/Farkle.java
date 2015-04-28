@@ -540,7 +540,7 @@ class Player {
         // move the selected dice from the dice_list to
         // the held_dice list, then remove from dice_list
         this.held_dice.add(this.dice_list.get(position));
-        //this.dice_list.remove(position);
+        this.dice_list.remove(position);
     }
 
     public void takeHeldFromRolling() {
@@ -552,6 +552,7 @@ class Player {
                 int rolling_face = this.dice_list.get(j).get_value();
                 if (held_face == rolling_face) {
                     this.dice_list.remove(j);
+                    break;
                 }
             }
         }
