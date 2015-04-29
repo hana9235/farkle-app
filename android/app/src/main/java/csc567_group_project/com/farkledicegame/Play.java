@@ -124,7 +124,6 @@ public class Play extends ActionBarActivity {
         int numHumans = fromSetup.getIntExtra("NUMHUMANS", 1); // default to 1 human out of 2 players
 
         players = createPlayers(totalPlayers, numHumans);
-        //updateScreen(players, currentPlayer, );
         currentPlayer = 0; // this is an index that loops through players
 
         Player p = players.get(currentPlayer);
@@ -177,11 +176,26 @@ public class Play extends ActionBarActivity {
         // parseInt from the current field, or just pull the current turn score
         Player p = players.get(currentPlayer);
 
-        int prevScore = Integer.parseInt(turnScore.getText().toString());
+        System.out.println("old roll score = " + rollScore);
+        ArrayList<Integer> updated_results = calculate_roll_value(p);
+
+        // pull the roll score out so we can change it and prevent weirdness
+        turnTotal = turnTotal - rollScore;
+        // get rid of the points for not-held dice
+        if (rollScore == 0) {
+            rollScore = updated_results.get(0);
+        } else {
+            rollScore = rollScore - updated_results.get(0);
+        }
+        // add the revised score for this roll to the turn total
+        turnTotal += rollScore;
+
+        turnScore.setText(Integer.toString(turnTotal));
+        /*int prevScore = Integer.parseInt(turnScore.getText().toString());
         int rolledScore = Integer.parseInt(pts);
         int points = rolledScore + prevScore;
         pts = Integer.toString(points);
-        turnScore.setText(pts);
+        turnScore.setText(pts); */
     }
 
     public void updateDice(ArrayList<Die> dice, ArrayList<ImageButton> diceView, boolean heldDice) {
@@ -268,7 +282,7 @@ public class Play extends ActionBarActivity {
     }
 
     public ArrayList<Integer> calculate_roll_value(Player p) {
-        ArrayList<Integer> results = new ArrayList<Integer>();
+        ArrayList<Integer> results = new ArrayList<>();
         // result will have two values, the point value and the number of scoring dice
 
         int sum = 0;
@@ -284,7 +298,7 @@ public class Play extends ActionBarActivity {
                 counted.put(die_face_val, 1);
             }
             else { // value exists, increase number of occurrences
-                int old_count = (int) counted.get(die_face_val);
+                int old_count = counted.get(die_face_val);
                 counted.put(die_face_val, old_count + 1);
             }
         }
@@ -293,8 +307,8 @@ public class Play extends ActionBarActivity {
         // {1=3, 4=2, 6=1}
 
         // rules vary for scoring if at least 3 of a value has been rolled
-        ArrayList<Integer> at_least_three = new ArrayList<Integer>();
-        ArrayList<Integer> less_than_three = new ArrayList<Integer>();
+        ArrayList<Integer> at_least_three = new ArrayList<>();
+        ArrayList<Integer> less_than_three = new ArrayList<>();
 
         for( Map.Entry<Integer, Integer> entry : counted.entrySet()) {
             int face_val = entry.getKey();
@@ -400,6 +414,9 @@ public class Play extends ActionBarActivity {
         ArrayList<Integer> roll_results = calculate_roll_value(p);
         ArrayList<Die> rolled = p.get_rolled_dice();
 
+        // use roll score as temporary value to prevent scoring issues with turnTotal
+        rollScore = roll_results.get(0);
+
         // player must hold dice to keep rolling, or end turn
         rollAgain.setClickable(false);
         rollAgain.setBackgroundResource(R.drawable.rollagaindisabled);
@@ -410,15 +427,16 @@ public class Play extends ActionBarActivity {
             turnScore.setText("0");
 
         }
-        else if (roll_results.get(1) == p.get_rolled_dice().size()) {
-            Toast.makeText(this, "All 6 dice have scored, you may roll them all again.", Toast.LENGTH_LONG).show();
-            rollAgain.setBackgroundResource(R.drawable.rollagain);
-            rollAgain.setClickable(true);
-            allScored = true;
-        }
         else {
-            String turnPts = Integer.toString(roll_results.get(0));
-            updateTurnScore(turnPts);
+            if (roll_results.get(1) == p.get_rolled_dice().size()) {
+                Toast.makeText(this, "All 6 dice have scored, you may roll them all again.", Toast.LENGTH_LONG).show();
+                rollAgain.setBackgroundResource(R.drawable.rollagain);
+                rollAgain.setClickable(true);
+                allScored = true;
+            } else {
+                String turnPts = Integer.toString(rollScore);
+                updateTurnScore(turnPts);
+            }
         }
 
         updateDice(p.get_rolled_dice(), diceView, false);
@@ -437,6 +455,7 @@ public class Play extends ActionBarActivity {
         p.reset_dice();
         int turnTotal = Integer.parseInt(turnScore.getText().toString());
         updateTotalScore(turnTotal);
+        turnTotal = 0;
 
         if (p.get_score() >= 10000) {
             toWinner();
@@ -446,6 +465,7 @@ public class Play extends ActionBarActivity {
         advancePlayer();
         updateViews();
 
+        rollScore = 0;
         rollAgain.setClickable(true); // in case the user busted and rollAgain was disabled
         rollAgain.setBackgroundResource(R.drawable.rollagain);
         rollAgain();
@@ -490,7 +510,5 @@ public class Play extends ActionBarActivity {
         rollAgain.setClickable(true);
         rollAgain.setBackgroundResource(R.drawable.rollagain);
         clicked.setBackgroundResource(R.drawable.blankdie);
-
-        //p.takeHeldFromRolling();
     }
 }
