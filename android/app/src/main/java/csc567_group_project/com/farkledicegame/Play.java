@@ -22,7 +22,7 @@ public class Play extends ActionBarActivity {
     ArrayList<Player> players;
     ImageButton d1, d2, d3, d4, d5, d6, rollAgain, endTurn, showHeld;
     TextView playerName, totalScore, turnScore;
-    boolean viewingHeld;
+    boolean viewingHeld, firstRollOfTurn;
 
     // game vars here
     boolean game_won;
@@ -74,6 +74,7 @@ public class Play extends ActionBarActivity {
         showHeld = (ImageButton) findViewById(R.id.showHeld);
 
         viewingHeld = false;
+        firstRollOfTurn = true;
 
         showHeld.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -168,6 +169,8 @@ public class Play extends ActionBarActivity {
 
     public void toWinner() {
         Intent toWinner = new Intent(this, Winner.class);
+        // players are in a arraylist "players"
+        // look at the labs
         finish();
         startActivity(toWinner);
     }

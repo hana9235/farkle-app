@@ -26,9 +26,10 @@ public class Winner extends ActionBarActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.winner);
 
-        //getIntent() and extract playerList, or use msg.obj -- some way to get the scores
-         // could also use simple strings in an Intent
-        // sort on ArrayList attribute?
+        //getIntent() and get the player data
+         // sort by score
+         // put them in the listview
+            
         winners = (ListView) findViewById(R.id.winners);
         backToStart = (ImageButton) findViewById(R.id.return_to_start);
 
