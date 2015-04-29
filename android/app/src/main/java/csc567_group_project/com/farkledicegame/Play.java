@@ -271,7 +271,7 @@ public class Play extends ActionBarActivity {
             }
         }
         // fill the rest with blanks
-        for(int j = dice.size(); j < diceView.size(); j++) {
+        for(int j = dice.size(); j < diceView.size(); j++) {  // TODO: check that this is looping right -- probably, but clickable is not set right
             ImageButton d = diceView.get(j);
             d.setBackgroundResource(R.drawable.blankdie);
             d.setClickable(false);
@@ -412,7 +412,6 @@ public class Play extends ActionBarActivity {
         p.roll_dice();
 
         ArrayList<Integer> roll_results = calculate_roll_value(p);
-        ArrayList<Die> rolled = p.get_rolled_dice();
 
         // use roll score as temporary value to prevent scoring issues with turnTotal
         rollScore = roll_results.get(0);
@@ -504,11 +503,14 @@ public class Play extends ActionBarActivity {
         //  4  5
         // so pass that index back to game, which will move that die to the player's hold list
         ImageButton clicked = diceView.get(position);
+        clicked.setBackgroundResource(R.drawable.blankdie);
         clicked.setClickable(false);
         Player p = players.get(currentPlayer);
         p.holdOne(position);
         rollAgain.setClickable(true);
         rollAgain.setBackgroundResource(R.drawable.rollagain);
-        clicked.setBackgroundResource(R.drawable.blankdie);
+
+        // TODO: if user holds all six, go ahead and force roll again, but be sure to reset dice
+
     }
 }
