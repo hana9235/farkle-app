@@ -1,6 +1,6 @@
-# Farkle
-Code to implement the dice game Farkle. 
-Farkle is a game played with 6 dice.  The goal is to be the first to get to 10,000 points.
+# Ten Thousand
+Code to implement the dice game Ten Thousand (similar to Farkle). 
+Ten Thousand is a game played with 6 dice.  The goal is to be the first to get to 10,000 points.
 
 The rules:
   - To get on the board, a player must score at least 1000 points. From then on, the points stack.
