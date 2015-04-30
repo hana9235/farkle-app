@@ -22,12 +22,12 @@ public class Play extends ActionBarActivity {
     ArrayList<Player> players;
     ImageButton d1, d2, d3, d4, d5, d6, rollAgain, endTurn, showHeld;
     TextView playerName, totalScore, turnScore;
-    boolean viewingHeld, firstRollOfTurn;
+    boolean viewingHeld;
 
     // game vars here
     boolean game_won;
     final int pointsToWin = 10000;
-    int turnTotal, rollScore, totalPlayers, currentPlayer;
+    int turnTotal, heldScore, totalPlayers, currentPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +58,7 @@ public class Play extends ActionBarActivity {
             d.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    holdDie(diePosition);
+                        holdDie(diePosition);
                 }
             });
             diceView.set(i, d);
@@ -74,20 +74,29 @@ public class Play extends ActionBarActivity {
         showHeld = (ImageButton) findViewById(R.id.showHeld);
 
         viewingHeld = false;
-        firstRollOfTurn = true;
 
         showHeld.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // show an alertdialog with a listview of the p.get_held_dice() contents
+                ArrayList<Integer> holdScoreResults = calculate_roll_value(players.get(currentPlayer).get_held_dice());
+                turnScore.setText(Integer.toString(holdScoreResults.get(0)));
+
                 if (viewingHeld) {
                     viewingHeld = false;
                     showHeld.setBackgroundResource(R.drawable.showheld);
+                    // disable roll again just to keep things from being buggy
+                    rollAgain.setBackgroundResource(R.drawable.rollagain);
+                    rollAgain.setClickable(true);
                     updateDice(players.get(currentPlayer).get_rolled_dice(), diceView, viewingHeld);
 
                 } else {
                     viewingHeld = true;
                     showHeld.setBackgroundResource(R.drawable.showrolled);
+                    rollAgain.setBackgroundResource(R.drawable.rollagaindisabled);
+                    rollAgain.setClickable(false);
+
+                    // TODO:  get the score of the held dice
+
                     updateDice(players.get(currentPlayer).get_held_dice(), diceView, viewingHeld);
                 }
 
@@ -99,14 +108,12 @@ public class Play extends ActionBarActivity {
             public void onClick(View v) {
                 Player p = players.get(currentPlayer);
 
-                // adjust the turn total here, get the actual value by: score = total - rolling dice
-                // this seems backward at first, but it is right
-                ArrayList<Integer> updatedTurnScore = calculate_roll_value(p);
-                //int updatedScore = updatedTurnScore.get(0);
-
-                //int oldTurnScore = Integer.parseInt(turnScore.getText().toString());
-                //updateTurnScore(Integer.toString((oldTurnScore - updatedScore)));
-
+                // set flag bits in the held dice to -1 so they're locked
+                ArrayList<Die> dice = p.get_held_dice();
+                for(int i = 0; i < dice.size(); i++) {
+                    Die d = dice.get(i);
+                    d.setHoldLock(-1);
+                }
 
                 rollAgain();
             }
@@ -129,6 +136,7 @@ public class Play extends ActionBarActivity {
 
         Player p = players.get(currentPlayer);
         updateViews();  // set name and score views to appropriate player data
+        heldScore = 0;
 
         rollAgain();  // start the game
 
@@ -175,13 +183,14 @@ public class Play extends ActionBarActivity {
         startActivity(toWinner);
     }
 
-    /*
-    public void updateTurnScore(String pts) {
+
+    public void updateTurnScore(int pts) {
         // parseInt from the current field, or just pull the current turn score
         Player p = players.get(currentPlayer);
 
+        /**
         System.out.println("old roll score = " + rollScore);
-        ArrayList<Integer> updated_results = calculate_roll_value(p);
+        ArrayList<Integer> updated_results = calculate_roll_value(p.get_rolled_dice());
 
         // pull the roll score out so we can change it and prevent weirdness
         turnTotal = turnTotal - rollScore;
@@ -199,8 +208,8 @@ public class Play extends ActionBarActivity {
         int rolledScore = Integer.parseInt(pts);
         int points = rolledScore + prevScore;
         pts = Integer.toString(points);
-        turnScore.setText(pts);  */ /*
-    } */
+        turnScore.setText(pts);  */
+    }
 
     public void updateDice(ArrayList<Die> dice, ArrayList<ImageButton> diceView, boolean heldDice) {
         // get the list of dice from p  (p.get_rolled_dice())
@@ -212,6 +221,7 @@ public class Play extends ActionBarActivity {
         for (int i = 0; i < dice.size(); i++) {
             Die d = dice.get(i);
             ImageButton currentDie = diceView.get(i);
+            //System.out.println("HoldLock of this die (value = " + d.get_value() + ") is " + d.getHoldLock());
 
             switch(d.get_value()) {
                 case 1:
@@ -220,7 +230,12 @@ public class Play extends ActionBarActivity {
                     } else {
                         currentDie.setBackgroundResource(R.drawable.d1);
                     }
-                    currentDie.setClickable(true);
+                    if(d.getHoldLock() == -1) {
+                        currentDie.setClickable(false);
+                    } else {
+                        currentDie.setClickable(true);
+                    }
+
                     // @drawable/d1
                     break;
                 case 2:
@@ -229,7 +244,11 @@ public class Play extends ActionBarActivity {
                     } else {
                         currentDie.setBackgroundResource(R.drawable.d2);
                     }
-                    currentDie.setClickable(true);
+                    if(d.getHoldLock() == -1) {
+                        currentDie.setClickable(false);
+                    } else {
+                        currentDie.setClickable(true);
+                    }
                     // @drawable/d2
                     break;
                 case 3:
@@ -238,7 +257,11 @@ public class Play extends ActionBarActivity {
                     } else {
                         currentDie.setBackgroundResource(R.drawable.d3);
                     }
-                    currentDie.setClickable(true);
+                    if(d.getHoldLock() == -1) {
+                        currentDie.setClickable(false);
+                    } else {
+                        currentDie.setClickable(true);
+                    }
                     // @drawable/d3
                     break;
                 case 4:
@@ -247,7 +270,11 @@ public class Play extends ActionBarActivity {
                     } else {
                         currentDie.setBackgroundResource(R.drawable.d4);
                     }
-                    currentDie.setClickable(true);
+                    if(d.getHoldLock() == -1) {
+                        currentDie.setClickable(false);
+                    } else {
+                        currentDie.setClickable(true);
+                    }
                     // @drawable/d4
                     break;
                 case 5:
@@ -256,7 +283,11 @@ public class Play extends ActionBarActivity {
                     } else {
                         currentDie.setBackgroundResource(R.drawable.d5);
                     }
-                    currentDie.setClickable(true);
+                    if(d.getHoldLock() == -1) {
+                        currentDie.setClickable(false);
+                    } else {
+                        currentDie.setClickable(true);
+                    }
                     // @drawable/d5
                     break;
                 case 6:
@@ -265,12 +296,17 @@ public class Play extends ActionBarActivity {
                     } else {
                         currentDie.setBackgroundResource(R.drawable.d6);
                     }
-                    currentDie.setClickable(true);
+                    if(d.getHoldLock() == -1) {
+                        currentDie.setClickable(false);
+                    } else {
+                        currentDie.setClickable(true);
+                    }
                     // @drawable/d6
                     break;
                 default:
                     //@drawable/blankdie
                     currentDie.setBackgroundResource(R.drawable.blankdie);
+                    currentDie.setClickable(false);
                     break;
             }
         }
@@ -285,13 +321,13 @@ public class Play extends ActionBarActivity {
         }
     }
 
-    public ArrayList<Integer> calculate_roll_value(Player p) {
+    public ArrayList<Integer> calculate_roll_value(ArrayList<Die> dList) {
         ArrayList<Integer> results = new ArrayList<>();
         // result will have two values, the point value and the number of scoring dice
 
         int sum = 0;
         int scoring_dice = 0;
-        ArrayList<Die> rolled_dice = p.get_rolled_dice();
+        ArrayList<Die> rolled_dice = dList;
 
         // count occurrences
         Map<Integer, Integer> counted = new HashMap<Integer, Integer>();
@@ -415,10 +451,10 @@ public class Play extends ActionBarActivity {
 
         p.roll_dice();
 
-        ArrayList<Integer> roll_results = calculate_roll_value(p);
+        ArrayList<Integer> roll_results = calculate_roll_value(p.get_rolled_dice());
 
         // use roll score as temporary value to prevent scoring issues with turnTotal
-        //rollScore = roll_results.get(0);
+        heldScore = roll_results.get(0);
 
         // player must hold dice to keep rolling, or end turn
         rollAgain.setClickable(false);
@@ -438,7 +474,7 @@ public class Play extends ActionBarActivity {
                 allScored = true;
             } else {
                 //String turnPts = Integer.toString(rollScore);
-                //updateTurnScore(turnPts);
+                updateTurnScore(heldScore);
             }
         }
 
@@ -456,11 +492,13 @@ public class Play extends ActionBarActivity {
         Player p = players.get(currentPlayer);
 
         p.reset_dice();
-        //int turnTotal = Integer.parseInt(turnScore.getText().toString());
-        //updateTotalScore(turnTotal);
+        int turnTotal = Integer.parseInt(turnScore.getText().toString());
+        updateTotalScore(turnTotal);
+
         turnTotal = 0;
 
-        if (p.get_score() >= 10000) {
+
+        if (p.get_score() >= pointsToWin) {
             toWinner();
             return;
         }
@@ -506,13 +544,31 @@ public class Play extends ActionBarActivity {
         //  2  3
         //  4  5
         // so pass that index back to game, which will move that die to the player's hold list
+
         ImageButton clicked = diceView.get(position);
         clicked.setBackgroundResource(R.drawable.blankdie);
         clicked.setClickable(false);
         Player p = players.get(currentPlayer);
-        p.holdOne(position);
-        rollAgain.setClickable(true);
-        rollAgain.setBackgroundResource(R.drawable.rollagain);
+        if(viewingHeld) {
+            // ?????
+            p.unHold(position);
+            rollAgain.setClickable(false);
+            rollAgain.setBackgroundResource(R.drawable.rollagaindisabled);
+            updateDice(p.get_held_dice(), diceView, true);
+        } else {
+            p.holdOne(position);
+            rollAgain.setClickable(true);
+            rollAgain.setBackgroundResource(R.drawable.rollagain);
+            updateDice(p.get_rolled_dice(), diceView, false);
+
+        }
+        ArrayList<Die> unlockedDice = p.getUnlockedDice();
+        ArrayList<Integer> holdScoreResults = calculate_roll_value(p.get_held_dice());
+        turnScore.setText(Integer.toString(holdScoreResults.get(0)));
+
+        // recalculate the value of the held dice and set that to the heldScore
+        // (which is different than turnTotal)
+
 
         // TODO: if user holds all six, go ahead and force roll again, but be sure to reset dice
 

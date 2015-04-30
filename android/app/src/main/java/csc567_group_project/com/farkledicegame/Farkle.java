@@ -536,11 +536,24 @@ class Player {
             this.dice_list.remove(index);
         }
 
-    } public void holdOne(int position) {
+    }
+
+    public void holdOne(int position) {
         // move the selected dice from the dice_list to
         // the held_dice list, then remove from dice_list
-        this.held_dice.add(this.dice_list.get(position));
+        Die d = this.dice_list.get(position);
+        d.setHoldLock(0);
+        this.held_dice.add(d);
         this.dice_list.remove(position);
+    }
+
+    public void unHold(int position) {
+        // remove the die from the held list to the rolling list
+        // then reset the locking flag to 1
+        Die d = this.held_dice.get(position);
+        d.setHoldLock(1);
+        this.dice_list.add(d);
+        this.held_dice.remove(position);
     }
 
     public void takeHeldFromRolling() {
@@ -593,6 +606,17 @@ class Player {
         return this.held_dice;
     }
 
+    public ArrayList<Die> getUnlockedDice() {
+        ArrayList<Die> dList = new ArrayList<>();
+        for(int i = 0; i < this.held_dice.size(); i++) {
+            Die d = this.held_dice.get(i);
+            if (d.getHoldLock() != -1) {
+                dList.add(d);
+            }
+        }
+        return dList;
+    }
+
     public static void main(String[] args) {
         Player p = new Player();
         System.out.println(p.get_score());
@@ -612,28 +636,29 @@ class Player {
 class Die {
 
     int value;
+    int holdLock;
     Random random;
 
     public Die() {
         this.value = 1;
+        this.holdLock = 1;
         random = new Random();
 
     }
 
-    public void roll() { // probably change return type
-        int new_value = random.nextInt(6) + 1;
-        this.value = new_value;
-        System.out.print(this.value + " ");
+    public void roll() {
+        this.value = random.nextInt(6) + 1;
     }
 
     public int get_value() {
         return this.value;
     }
 
-    public static void main(String[] args) {
-        Die d = new Die();
-        for (int i = 0; i < 6; i++) {
-            d.roll();
-        }
+    public int getHoldLock() {
+        return this.holdLock;
+    }
+
+    public void setHoldLock(int v) {
+        this.holdLock = v;
     }
 }
