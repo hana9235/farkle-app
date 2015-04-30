@@ -102,10 +102,10 @@ public class Play extends ActionBarActivity {
                 // adjust the turn total here, get the actual value by: score = total - rolling dice
                 // this seems backward at first, but it is right
                 ArrayList<Integer> updatedTurnScore = calculate_roll_value(p);
-                int updatedScore = updatedTurnScore.get(0);
+                //int updatedScore = updatedTurnScore.get(0);
 
-                int oldTurnScore = Integer.parseInt(turnScore.getText().toString());
-                updateTurnScore(Integer.toString((oldTurnScore - updatedScore)));
+                //int oldTurnScore = Integer.parseInt(turnScore.getText().toString());
+                //updateTurnScore(Integer.toString((oldTurnScore - updatedScore)));
 
 
                 rollAgain();
@@ -175,6 +175,7 @@ public class Play extends ActionBarActivity {
         startActivity(toWinner);
     }
 
+    /*
     public void updateTurnScore(String pts) {
         // parseInt from the current field, or just pull the current turn score
         Player p = players.get(currentPlayer);
@@ -198,8 +199,8 @@ public class Play extends ActionBarActivity {
         int rolledScore = Integer.parseInt(pts);
         int points = rolledScore + prevScore;
         pts = Integer.toString(points);
-        turnScore.setText(pts); */
-    }
+        turnScore.setText(pts);  */ /*
+    } */
 
     public void updateDice(ArrayList<Die> dice, ArrayList<ImageButton> diceView, boolean heldDice) {
         // get the list of dice from p  (p.get_rolled_dice())
@@ -417,7 +418,7 @@ public class Play extends ActionBarActivity {
         ArrayList<Integer> roll_results = calculate_roll_value(p);
 
         // use roll score as temporary value to prevent scoring issues with turnTotal
-        rollScore = roll_results.get(0);
+        //rollScore = roll_results.get(0);
 
         // player must hold dice to keep rolling, or end turn
         rollAgain.setClickable(false);
@@ -436,8 +437,8 @@ public class Play extends ActionBarActivity {
                 rollAgain.setClickable(true);
                 allScored = true;
             } else {
-                String turnPts = Integer.toString(rollScore);
-                updateTurnScore(turnPts);
+                //String turnPts = Integer.toString(rollScore);
+                //updateTurnScore(turnPts);
             }
         }
 
@@ -455,8 +456,8 @@ public class Play extends ActionBarActivity {
         Player p = players.get(currentPlayer);
 
         p.reset_dice();
-        int turnTotal = Integer.parseInt(turnScore.getText().toString());
-        updateTotalScore(turnTotal);
+        //int turnTotal = Integer.parseInt(turnScore.getText().toString());
+        //updateTotalScore(turnTotal);
         turnTotal = 0;
 
         if (p.get_score() >= 10000) {
@@ -467,7 +468,7 @@ public class Play extends ActionBarActivity {
         advancePlayer();
         updateViews();
 
-        rollScore = 0;
+        //rollScore = 0;
         rollAgain.setClickable(true); // in case the user busted and rollAgain was disabled
         rollAgain.setBackgroundResource(R.drawable.rollagain);
         rollAgain();
