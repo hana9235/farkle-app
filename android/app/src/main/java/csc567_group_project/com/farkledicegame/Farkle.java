@@ -610,7 +610,8 @@ class Player {
         ArrayList<Die> dList = new ArrayList<>();
         for(int i = 0; i < this.held_dice.size(); i++) {
             Die d = this.held_dice.get(i);
-            if (d.getHoldLock() != -1) {
+            if (d.getHoldLock() >= 0) {
+                //d.setHoldLock(0);
                 dList.add(d);
             }
         }

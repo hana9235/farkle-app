@@ -22,7 +22,7 @@ public class Play extends ActionBarActivity {
     ArrayList<Player> players;
     ImageButton d1, d2, d3, d4, d5, d6, rollAgain, endTurn, showHeld;
     TextView playerName, totalScore, turnScore;
-    boolean viewingHeld;
+    boolean viewingHeld, firstRollOfTurn;
 
     // game vars here
     boolean game_won;
@@ -78,8 +78,7 @@ public class Play extends ActionBarActivity {
         showHeld.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ArrayList<Integer> holdScoreResults = calculate_roll_value(players.get(currentPlayer).get_held_dice());
-                turnScore.setText(Integer.toString(holdScoreResults.get(0)));
+                recalculateHeld();
 
                 if (viewingHeld) {
                     viewingHeld = false;
@@ -137,6 +136,9 @@ public class Play extends ActionBarActivity {
         Player p = players.get(currentPlayer);
         updateViews();  // set name and score views to appropriate player data
         heldScore = 0;
+        turnTotal = 0;
+
+        firstRollOfTurn = true;
 
         rollAgain();  // start the game
 
@@ -339,6 +341,13 @@ public class Play extends ActionBarActivity {
             }
             else { // value exists, increase number of occurrences
                 int old_count = counted.get(die_face_val);
+                if (old_count + 1 == 6) {
+                    if (firstRollOfTurn) {
+                        // if you roll all 6 dice the same on your first roll, you win
+                        results.add(10000);
+                        results.add(6);
+                    }
+                }
                 counted.put(die_face_val, old_count + 1);
             }
         }
@@ -446,6 +455,17 @@ public class Play extends ActionBarActivity {
         // to be implemented when the player chooses to roll again
         // how to do this for the AI player?
 
+        // enable clicking dice in case all scored previously and were disabled
+        recalculateHeld();
+        int heldScore = Integer.parseInt(turnScore.getText().toString());
+        turnTotal += heldScore;
+
+        for(int i = 0; i < diceView.size(); i++) {
+            ImageButton ib = diceView.get(i);
+            ib.setClickable(true);
+            diceView.set(i, ib);
+        }
+
         Player p = players.get(currentPlayer);
         boolean allScored = false;
 
@@ -454,7 +474,7 @@ public class Play extends ActionBarActivity {
         ArrayList<Integer> roll_results = calculate_roll_value(p.get_rolled_dice());
 
         // use roll score as temporary value to prevent scoring issues with turnTotal
-        heldScore = roll_results.get(0);
+        int rollScore = roll_results.get(0);
 
         // player must hold dice to keep rolling, or end turn
         rollAgain.setClickable(false);
@@ -469,6 +489,13 @@ public class Play extends ActionBarActivity {
         else {
             if (roll_results.get(1) == p.get_rolled_dice().size()) {
                 Toast.makeText(this, "All 6 dice have scored, you may roll them all again.", Toast.LENGTH_LONG).show();
+                // disable the dice until the roll again button is clicked again  -- prevents weird reset issue
+                for(int i = 0; i < diceView.size(); i++) {
+                    ImageButton ib = diceView.get(i);
+                    ib.setClickable(false);
+                    diceView.set(i, ib);
+                }
+
                 rollAgain.setBackgroundResource(R.drawable.rollagain);
                 rollAgain.setClickable(true);
                 allScored = true;
@@ -480,8 +507,10 @@ public class Play extends ActionBarActivity {
 
         updateDice(p.get_rolled_dice(), diceView, false);
         if (allScored) {
+            turnTotal += roll_results.get(0);
             p.reset_dice();
         }
+        firstRollOfTurn = false;
     }
 
     public void endTurn() {
@@ -492,8 +521,8 @@ public class Play extends ActionBarActivity {
         Player p = players.get(currentPlayer);
 
         p.reset_dice();
-        int turnTotal = Integer.parseInt(turnScore.getText().toString());
-        updateTotalScore(turnTotal);
+        int thisTurnTotal = Integer.parseInt(turnScore.getText().toString());
+        updateTotalScore(thisTurnTotal);
 
         turnTotal = 0;
 
@@ -509,6 +538,10 @@ public class Play extends ActionBarActivity {
         //rollScore = 0;
         rollAgain.setClickable(true); // in case the user busted and rollAgain was disabled
         rollAgain.setBackgroundResource(R.drawable.rollagain);
+        viewingHeld = false;
+
+        // reset to check for 6 of same value
+        firstRollOfTurn = true;
         rollAgain();
     }
 
@@ -562,15 +595,27 @@ public class Play extends ActionBarActivity {
             updateDice(p.get_rolled_dice(), diceView, false);
 
         }
-        ArrayList<Die> unlockedDice = p.getUnlockedDice();
-        ArrayList<Integer> holdScoreResults = calculate_roll_value(p.get_held_dice());
-        turnScore.setText(Integer.toString(holdScoreResults.get(0)));
+        recalculateHeld();
 
-        // recalculate the value of the held dice and set that to the heldScore
-        // (which is different than turnTotal)
+        // don't click on the button if there's nothing to roll; you'll bust
+        // OR just reset the dice to avoid the whole problem
+        // (you shouldn't be able to be here and trying to hold all six - something in your held dice
+        // doesn't count for points)
+        if(p.get_rolled_dice().size() == 0) {
+            rollAgain.setClickable(false);
+            rollAgain.setBackgroundResource(R.drawable.rollagaindisabled);
+        }
 
 
-        // TODO: if user holds all six, go ahead and force roll again, but be sure to reset dice
+    }
 
+
+    public void recalculateHeld() {
+        ArrayList<Die> unlockedDice = players.get(currentPlayer).getUnlockedDice();
+        ArrayList<Integer> holdScoreResults = calculate_roll_value(unlockedDice);
+        int currentTurnScore = Integer.parseInt(turnScore.getText().toString());
+
+        System.out.println("Hold score = " + holdScoreResults.get(0));
+        turnScore.setText(Integer.toString(holdScoreResults.get(0) + currentTurnScore));
     }
 }
