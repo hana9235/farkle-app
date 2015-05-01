@@ -78,7 +78,7 @@ public class Play extends ActionBarActivity {
         showHeld.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                recalculateHeld();
+                //recalculateHeld();
 
                 if (viewingHeld) {
                     viewingHeld = false;
@@ -585,6 +585,8 @@ public class Play extends ActionBarActivity {
         if(viewingHeld) {
             // ?????
             p.unHold(position);
+            // if viewing held and unHolding -- subtract that point value instead
+            // which is probably done by recalculating the held dice and just setting that to holdScore
             rollAgain.setClickable(false);
             rollAgain.setBackgroundResource(R.drawable.rollagaindisabled);
             updateDice(p.get_held_dice(), diceView, true);
