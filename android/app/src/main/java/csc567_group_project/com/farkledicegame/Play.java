@@ -108,11 +108,15 @@ public class Play extends ActionBarActivity {
                 Player p = players.get(currentPlayer);
 
                 // set flag bits in the held dice to -1 so they're locked
-                ArrayList<Die> dice = p.get_held_dice();
-                for(int i = 0; i < dice.size(); i++) {
-                    Die d = dice.get(i);
-                    d.setHoldLock(-1);
-                }
+                p.lockHeld();
+
+                // fix the scoring
+                System.out.println("RAOCL: turnTotal, heldScore = " + turnTotal + ", " + heldScore);
+
+                turnTotal += heldScore;
+                heldScore = 0;
+
+                p.lockHeld();
 
                 rollAgain();
             }
@@ -457,8 +461,9 @@ public class Play extends ActionBarActivity {
 
         // enable clicking dice in case all scored previously and were disabled
         recalculateHeld();
-        int heldScore = Integer.parseInt(turnScore.getText().toString());
-        turnTotal += heldScore;
+        //int heldScore = Integer.parseInt(turnScore.getText().toString());
+        System.out.println("RA: turnTotal, heldScore = " + turnTotal + ", " + heldScore);
+        //turnTotal += heldScore;
 
         for(int i = 0; i < diceView.size(); i++) {
             ImageButton ib = diceView.get(i);
@@ -615,9 +620,8 @@ public class Play extends ActionBarActivity {
     public void recalculateHeld() {
         ArrayList<Die> unlockedDice = players.get(currentPlayer).getUnlockedDice();
         ArrayList<Integer> holdScoreResults = calculate_roll_value(unlockedDice);
-        int currentTurnScore = Integer.parseInt(turnScore.getText().toString());
 
         System.out.println("Hold score = " + holdScoreResults.get(0));
-        turnScore.setText(Integer.toString(holdScoreResults.get(0) + currentTurnScore));
+        turnScore.setText(Integer.toString(holdScoreResults.get(0) + turnTotal));
     }
 }
