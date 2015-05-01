@@ -556,18 +556,12 @@ class Player {
         this.held_dice.remove(position);
     }
 
-    public void takeHeldFromRolling() {
-        // go through the held list and remove those from the rolling dice
+
+    public void lockHeld() {
         for(int i = 0; i < this.held_dice.size(); i++) {
-            int held_face = this.held_dice.get(i).get_value();
-            for(int j = this.dice_list.size() - 1; j >= 0; j--) {
-                // iterate over the dice list backward to avoid index errors
-                int rolling_face = this.dice_list.get(j).get_value();
-                if (held_face == rolling_face) {
-                    this.dice_list.remove(j);
-                    break;
-                }
-            }
+            Die d = this.held_dice.get(i);
+            d.setHoldLock(-1);
+            this.held_dice.set(i, d);
         }
     }
 
