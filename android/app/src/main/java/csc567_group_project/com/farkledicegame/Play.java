@@ -618,4 +618,25 @@ public class Play extends ActionBarActivity {
         System.out.println("Hold score = " + holdScoreResults.get(0));
         turnScore.setText(Integer.toString(holdScoreResults.get(0) + turnTotal));
     }
+
+    protected boolean aiDecision(ArrayList<Integer> rollResults) {
+        // This function will make the holding and rollAgain/endTurn decisions
+        // for the AI player(s).  Based on which dice scored, how many points accrued,
+        // etc, the AI will hold dice, and choose whether or not to roll again
+        // return value true == rolling again
+        // return value false == endTurn
+
+        if(turnTotal > 1000) {
+            // already a good score, may as well stop
+            return false;
+        }
+        Player p = players.get(currentPlayer);
+        if (p.get_rolled_dice().size() < 3) {
+            // only one or two dice left to roll, good chance you will bust
+            // so don't roll again
+            return false;
+        }
+
+        return false;
+    }
 }
