@@ -116,9 +116,6 @@ public class Play extends ActionBarActivity {
                 // set flag bits in the held dice to -1 so they're locked
                 p.lockHeld();
 
-                // fix the scoring
-                System.out.println("RAOCL: turnTotal, heldScore = " + turnTotal + ", " + heldScore);
-
                 turnTotal += heldScore;
                 heldScore = 0;
 
@@ -201,10 +198,7 @@ public class Play extends ActionBarActivity {
 
 
     public void updateTurnScore(int pts) {
-        // parseInt from the current field, or just pull the current turn score
-        Player p = players.get(currentPlayer);
-        System.out.println("updateTurnScore: turnTotal, heldScore = " + turnTotal + ", " + heldScore);
-
+        // add the held score to the current turnTotal
         turnTotal += heldScore;
         heldScore = 0;
     }
@@ -309,7 +303,7 @@ public class Play extends ActionBarActivity {
             }
         }
         // fill the rest with blanks
-        for(int j = dice.size(); j < diceView.size(); j++) {  // TODO: check that this is looping right -- probably, but clickable is not set right
+        for(int j = dice.size(); j < diceView.size(); j++) {
             ImageButton d = diceView.get(j);
             d.setBackgroundResource(R.drawable.blankdie);
             d.setClickable(false);
@@ -441,19 +435,14 @@ public class Play extends ActionBarActivity {
             }
         }
 
-        System.out.println("score: " + sum);
-
         results.add(sum);
         results.add(scoring_dice);
         return results;
     }
 
     public void rollAgain() {
-        // to be implemented when the player chooses to roll again
-        // how to do this for the AI player? lots and lots of if checks
-
+        // make sure current score is up to date
         recalculateHeld();
-
 
         Player p = players.get(currentPlayer);
         boolean allScored = false;
@@ -481,13 +470,18 @@ public class Play extends ActionBarActivity {
 
         if (roll_results.get(1) == 0) {
             // no scoring dice
+            if(p.get_ai()) {
+                endTurn();
+            }
+
             AlertDialog.Builder a = new AlertDialog.Builder(this)
                     .setTitle("Bust!")
-                    .setMessage(p.get_name() + " busted this turn.")
+                    .setMessage("You busted this turn.")
                     .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
+                            endTurn();
+                            dialog.dismiss();
                         }
                     })
                     .setIcon(R.drawable.icon_small);
@@ -497,18 +491,20 @@ public class Play extends ActionBarActivity {
 
         } else {
             if (roll_results.get(1) == p.get_rolled_dice().size()) {
-
-                AlertDialog.Builder a = new AlertDialog.Builder(this)
-                        .setTitle("Good roll!")
-                        .setMessage("All 6 dice have scored, you may roll them all again.")
-                        .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.cancel();
-                            }
-                        })
-                        .setIcon(R.drawable.icon_small);
-                a.show();
+                if(!p.get_ai()) {
+                    // only humans should get this popup, the AI won't care
+                    AlertDialog.Builder a = new AlertDialog.Builder(this)
+                            .setTitle("Good roll " + p.get_name() +"!")
+                            .setMessage("All 6 dice have scored, you may roll them all again.")
+                            .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            })
+                            .setIcon(R.drawable.icon_small);
+                    a.show();
+                }
                 updateTurnScore(rollScore);
 
                 // disable the dice until the roll again button is clicked again  -- prevents resetting
@@ -535,7 +531,6 @@ public class Play extends ActionBarActivity {
 
         if (p.get_ai()) {
             boolean goingAgain = aiDecision(roll_results);
-            System.out.println("AI's scores: " + "\nheldScore = " + heldScore + "\nturnTotal =" + turnTotal);
             if (goingAgain) {
                 rollAgain();
             } else {
@@ -552,39 +547,48 @@ public class Play extends ActionBarActivity {
 
         p.reset_dice();
         int thisTurnTotal = Integer.parseInt(turnScore.getText().toString());
+        String msg;
         if(p.get_ai()) {
-            System.out.println("AI's total score is now: " + p.get_score());
-            AlertDialog.Builder a = new AlertDialog.Builder(this)
-                    .setTitle(p.get_name() + "'s turn")
-                    .setMessage(p.get_name() + " scored " + thisTurnTotal + " this turn.")
-                    .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                        }
-                    })
-                    .setIcon(R.drawable.icon_small);
-            a.show();
+            if(thisTurnTotal == 0) {
+                msg = p.get_name() + " busted this turn.";
+            }
+            else {
+                msg = p.get_name() + " scored " + thisTurnTotal + " this turn.";
+            }
+
+            if(thisTurnTotal != 0) {
+                // already showed an alert for busting
+                System.out.println("AI's total score is now: " + p.get_score());
+                AlertDialog.Builder a = new AlertDialog.Builder(this)
+                        .setTitle(p.get_name() + "'s turn")
+                        .setMessage(msg)
+                        .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .setIcon(R.drawable.icon_small);
+                a.show();
+            }
         }
         updateTotalScore(thisTurnTotal);
 
         turnTotal = 0;
 
-
         if (p.get_score() >= pointsToWin) {
             toWinner();
-            return;
+            // this activity will be finish()'d when Winner starts, no return needed
         }
 
         advancePlayer();
         updateViews();
 
-        //rollScore = 0;
         rollAgain.setClickable(true); // in case the user busted and rollAgain was disabled
         rollAgain.setBackgroundResource(R.drawable.rollagain);
         viewingHeld = false;
 
-        // reset to check for 6 of same value
+        // reset to check for 6 of same value on first roll, which is automatic win
         firstRollOfTurn = true;
         rollAgain();
     }
@@ -601,11 +605,11 @@ public class Play extends ActionBarActivity {
             else {
                 AlertDialog.Builder a = new AlertDialog.Builder(this)
                         .setTitle("Too bad!")
-                        .setMessage(p.get_name() + " does not have enough points to get on the board.")
+                        .setMessage(p.get_name() + " did not score enough points to get on the board.")
                         .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                dialog.cancel();
+                                dialog.dismiss();
                             }
                         })
                         .setIcon(R.drawable.icon_small);
@@ -624,13 +628,11 @@ public class Play extends ActionBarActivity {
         turnScore.setText("0");
     }
 
-    // hold each die individually
     public void holdDie(int position) {
         // dice are accessed by their position in the grid
         //  0  1
         //  2  3
         //  4  5
-        // so pass that index back to game, which will move that die to the player's hold list
 
         ImageButton clicked = diceView.get(position);
 //        clicked.setBackgroundResource(R.drawable.blankdie);
@@ -660,8 +662,6 @@ public class Play extends ActionBarActivity {
             rollAgain.setClickable(false);
             rollAgain.setBackgroundResource(R.drawable.rollagaindisabled);
         }
-
-
     }
 
 
@@ -730,7 +730,7 @@ public class Play extends ActionBarActivity {
             return false;
         }
 
-        // if neither of those are good options, continue rolling
+        // if neither of those stopped the AI, continue rolling
         return true;
     }
 
