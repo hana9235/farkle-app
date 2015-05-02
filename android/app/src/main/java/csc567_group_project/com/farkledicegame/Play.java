@@ -1,5 +1,7 @@
 package csc567_group_project.com.farkledicegame;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -10,11 +12,12 @@ import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Play extends ActionBarActivity {
     GridLayout grid;
@@ -476,21 +479,40 @@ public class Play extends ActionBarActivity {
         updateDice(p.get_rolled_dice(), diceView, false);
 
 
-
-
         if (roll_results.get(1) == 0) {
             // no scoring dice
-            Toast.makeText(this, "Bust!",Toast.LENGTH_LONG).show();
+            AlertDialog.Builder a = new AlertDialog.Builder(this)
+                    .setTitle("Bust!")
+                    .setMessage(p.get_name() + " busted this turn.")
+                    .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    })
+                    .setIcon(R.drawable.icon_small);
+            a.show();
+
             turnScore.setText("0");
 
-        }
-        else {
+        } else {
             if (roll_results.get(1) == p.get_rolled_dice().size()) {
-                Toast.makeText(this, "All 6 dice have scored, you may roll them all again.", Toast.LENGTH_LONG).show();
+
+                AlertDialog.Builder a = new AlertDialog.Builder(this)
+                        .setTitle("Good roll!")
+                        .setMessage("All 6 dice have scored, you may roll them all again.")
+                        .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        })
+                        .setIcon(R.drawable.icon_small);
+                a.show();
                 updateTurnScore(rollScore);
 
                 // disable the dice until the roll again button is clicked again  -- prevents resetting
-                for(int i = 0; i < diceView.size(); i++) {
+                for (int i = 0; i < diceView.size(); i++) {
                     ImageButton ib = diceView.get(i);
                     ib.setClickable(false);
                     diceView.set(i, ib);
@@ -511,9 +533,10 @@ public class Play extends ActionBarActivity {
 
         firstRollOfTurn = false;
 
-        if(p.get_ai()) {
+        if (p.get_ai()) {
             boolean goingAgain = aiDecision(roll_results);
-            if(goingAgain) {
+            System.out.println("AI's scores: " + "\nheldScore = " + heldScore + "\nturnTotal =" + turnTotal);
+            if (goingAgain) {
                 rollAgain();
             } else {
                 endTurn();
@@ -530,7 +553,18 @@ public class Play extends ActionBarActivity {
         p.reset_dice();
         int thisTurnTotal = Integer.parseInt(turnScore.getText().toString());
         if(p.get_ai()) {
-            Toast.makeText(this, p.get_name() + "scored " + thisTurnTotal + " this turn.", Toast.LENGTH_LONG).show();
+            System.out.println("AI's total score is now: " + p.get_score());
+            AlertDialog.Builder a = new AlertDialog.Builder(this)
+                    .setTitle(p.get_name() + "'s turn")
+                    .setMessage(p.get_name() + " scored " + thisTurnTotal + " this turn.")
+                    .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    })
+                    .setIcon(R.drawable.icon_small);
+            a.show();
         }
         updateTotalScore(thisTurnTotal);
 
@@ -565,7 +599,17 @@ public class Play extends ActionBarActivity {
                 p.add_to_score(points);
             }
             else {
-                Toast.makeText(this, "Not enough to get on the board, sorry!", Toast.LENGTH_LONG).show();
+                AlertDialog.Builder a = new AlertDialog.Builder(this)
+                        .setTitle("Too bad!")
+                        .setMessage(p.get_name() + " does not have enough points to get on the board.")
+                        .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        })
+                        .setIcon(R.drawable.icon_small);
+                a.show();
             }
         }
 
@@ -626,7 +670,6 @@ public class Play extends ActionBarActivity {
         ArrayList<Integer> holdScoreResults = calculate_roll_value(unlockedDice);
 
         heldScore = holdScoreResults.get(0);
-        System.out.println("Hold score = " + holdScoreResults.get(0));
         turnScore.setText(Integer.toString(holdScoreResults.get(0) + turnTotal));
     }
 
