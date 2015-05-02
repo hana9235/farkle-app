@@ -193,7 +193,10 @@ public class Play extends ActionBarActivity {
     public void updateTurnScore(int pts) {
         // parseInt from the current field, or just pull the current turn score
         Player p = players.get(currentPlayer);
+        System.out.println("updateTurnScore: turnTotal, heldScore = " + turnTotal + ", " + heldScore);
 
+        turnTotal += heldScore;
+        heldScore = 0;
         /**
         System.out.println("old roll score = " + rollScore);
         ArrayList<Integer> updated_results = calculate_roll_value(p.get_rolled_dice());
@@ -621,6 +624,7 @@ public class Play extends ActionBarActivity {
         ArrayList<Die> unlockedDice = players.get(currentPlayer).getUnlockedDice();
         ArrayList<Integer> holdScoreResults = calculate_roll_value(unlockedDice);
 
+        heldScore = holdScoreResults.get(0);
         System.out.println("Hold score = " + holdScoreResults.get(0));
         turnScore.setText(Integer.toString(holdScoreResults.get(0) + turnTotal));
     }
