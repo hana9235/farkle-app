@@ -504,12 +504,21 @@ public class Play extends ActionBarActivity {
             }
         }
 
-        //updateDice(p.get_rolled_dice(), diceView, false);
         if (allScored) {
             turnTotal += roll_results.get(0);
             p.reset_dice();
         }
+
         firstRollOfTurn = false;
+
+        if(p.get_ai()) {
+            boolean goingAgain = aiDecision(roll_results);
+            if(goingAgain) {
+                rollAgain();
+            } else {
+                endTurn();
+            }
+        }
     }
 
     public void endTurn() {
@@ -520,6 +529,9 @@ public class Play extends ActionBarActivity {
 
         p.reset_dice();
         int thisTurnTotal = Integer.parseInt(turnScore.getText().toString());
+        if(p.get_ai()) {
+            Toast.makeText(this, p.get_name() + "scored " + thisTurnTotal + " this turn.", Toast.LENGTH_LONG).show();
+        }
         updateTotalScore(thisTurnTotal);
 
         turnTotal = 0;
@@ -627,7 +639,45 @@ public class Play extends ActionBarActivity {
         Player p = players.get(currentPlayer);
         ArrayList<Die> dList = p.get_rolled_dice();
 
-        if(turnTotal > 1000) {
+        if(rollResults.get(1) <= 2) {
+            // rolled 1's or 5's, only hold 1's because 5's aren't worth it
+            for(int i = 0; i < dList.size(); i++) {
+                Die d = dList.get(i);
+                if(d.get_value() == 1) {
+                    // hold this one
+                    p.holdOne(i);
+                }
+            }
+        }
+
+        // more than 2 dice scored, you could have rolled 3 of something, hold all of those
+        // this will not grab 3 3's and a 5, just the 3's
+        Map<Integer, Integer> countFaces = get_scoring_dice(p);
+        ArrayList<Integer> facesToHold = new ArrayList<>();
+
+        if(rollResults.get(1) >= 3) {
+            // check for faces that showed up 3+ times in this roll
+            // ex:  3 3 2 4 3 6  => has 3 3's, score == 300
+            // you want to hold the threes, so find them
+            for (Map.Entry<Integer, Integer> entry:  countFaces.entrySet()) {
+                if (entry.getValue() > 2) {
+                    // this face showed up more than twice
+                    facesToHold.add(entry.getKey());
+                }
+            }
+
+            // find the matching dice in the rolled list
+            // when the face matches, use the i as the position to hold
+            for(int i = 0; i < dList.size(); i++) {
+                int thisFace = dList.get(i).get_value();
+                if(facesToHold.contains(thisFace)) {
+                    p.holdOne(i);
+                }
+            }
+        }
+
+        // now check final base case things
+        if((turnTotal + heldScore) > 1000) {
             // already a good score, may as well stop
             return false;
         }
@@ -637,14 +687,30 @@ public class Play extends ActionBarActivity {
             return false;
         }
 
-        if(rollResults.get(1) <= 2) {
-            // rolled 1's or 5's, only hold 1's because 5's aren't worth it
+        // if neither of those are good options, continue rolling
+        return true;
+    }
 
-            for(int i = 0; i < dList.size(); i++) {
-                Die d = dList.get(i);
+
+    public Map<Integer, Integer> get_scoring_dice(Player p) {
+        // represents the number of dice that potentially score
+        // ai uses this to determine which dice to hold
+        ArrayList<Die> rolled_dice = p.get_rolled_dice();
+
+        // count occurrences
+        Map<Integer, Integer> counted = new HashMap<Integer, Integer>();
+        for (int i = 0; i < rolled_dice.size(); i++) {
+            int die_face_val = rolled_dice.get(i).get_value();
+            if(!counted.containsKey(die_face_val)) {
+                // value is not yet in the map, add it
+                counted.put(die_face_val, 1);
+            }
+            else { // value exists, increase number of occurrences
+                int old_count = (int) counted.get(die_face_val);
+                counted.put(die_face_val, old_count + 1);
             }
         }
 
-        return false;
+        return counted;
     }
 }
