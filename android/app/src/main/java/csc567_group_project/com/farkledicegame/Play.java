@@ -27,7 +27,7 @@ public class Play extends ActionBarActivity {
     // game vars here
     boolean game_won;
     final int pointsToWin = 10000;
-    int turnTotal, heldScore, totalPlayers, currentPlayer;
+    int turnTotal, heldScore, numRolledDice, totalPlayers, currentPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,8 +84,12 @@ public class Play extends ActionBarActivity {
                     viewingHeld = false;
                     showHeld.setBackgroundResource(R.drawable.showheld);
                     // disable roll again just to keep things from being buggy
-                    rollAgain.setBackgroundResource(R.drawable.rollagain);
-                    rollAgain.setClickable(true);
+
+                    if(players.get(currentPlayer).get_rolled_dice().size() < numRolledDice) {
+                        rollAgain.setBackgroundResource(R.drawable.rollagain);
+                        rollAgain.setClickable(true);
+                    }
+
                     updateDice(players.get(currentPlayer).get_rolled_dice(), diceView, viewingHeld);
 
                 } else {
@@ -94,7 +98,6 @@ public class Play extends ActionBarActivity {
                     rollAgain.setBackgroundResource(R.drawable.rollagaindisabled);
                     rollAgain.setClickable(false);
 
-                    // TODO:  get the score of the held dice
 
                     updateDice(players.get(currentPlayer).get_held_dice(), diceView, viewingHeld);
                 }
@@ -141,6 +144,7 @@ public class Play extends ActionBarActivity {
         updateViews();  // set name and score views to appropriate player data
         heldScore = 0;
         turnTotal = 0;
+        numRolledDice = 0;
 
         firstRollOfTurn = true;
 
@@ -153,6 +157,9 @@ public class Play extends ActionBarActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        // TODO:  have a "show everyone's score" option that pops up an alert dialog/listview
+
         return true;
     }
 
@@ -197,27 +204,6 @@ public class Play extends ActionBarActivity {
 
         turnTotal += heldScore;
         heldScore = 0;
-        /**
-        System.out.println("old roll score = " + rollScore);
-        ArrayList<Integer> updated_results = calculate_roll_value(p.get_rolled_dice());
-
-        // pull the roll score out so we can change it and prevent weirdness
-        turnTotal = turnTotal - rollScore;
-        // get rid of the points for not-held dice
-        if (rollScore == 0) {
-            rollScore = updated_results.get(0);
-        } else {
-            rollScore = rollScore - updated_results.get(0);
-        }
-        // add the revised score for this roll to the turn total
-        turnTotal += rollScore;
-
-        turnScore.setText(Integer.toString(turnTotal));
-        /*int prevScore = Integer.parseInt(turnScore.getText().toString());
-        int rolledScore = Integer.parseInt(pts);
-        int points = rolledScore + prevScore;
-        pts = Integer.toString(points);
-        turnScore.setText(pts);  */
     }
 
     public void updateDice(ArrayList<Die> dice, ArrayList<ImageButton> diceView, boolean heldDice) {
@@ -353,6 +339,7 @@ public class Play extends ActionBarActivity {
                         // if you roll all 6 dice the same on your first roll, you win
                         results.add(10000);
                         results.add(6);
+                        return results;
                     }
                 }
                 counted.put(die_face_val, old_count + 1);
@@ -460,24 +447,20 @@ public class Play extends ActionBarActivity {
 
     public void rollAgain() {
         // to be implemented when the player chooses to roll again
-        // how to do this for the AI player?
+        // how to do this for the AI player? lots and lots of if checks
 
-        // enable clicking dice in case all scored previously and were disabled
         recalculateHeld();
-        //int heldScore = Integer.parseInt(turnScore.getText().toString());
-        System.out.println("RA: turnTotal, heldScore = " + turnTotal + ", " + heldScore);
-        //turnTotal += heldScore;
 
-        for(int i = 0; i < diceView.size(); i++) {
-            ImageButton ib = diceView.get(i);
-            ib.setClickable(true);
-            diceView.set(i, ib);
-        }
 
         Player p = players.get(currentPlayer);
         boolean allScored = false;
 
         p.roll_dice();
+
+        // the user must hold at least one to keep rolling
+        // this will keep track of how many dice were rolled this turn
+        // if the user goes to the held screen and then back, rollAgain should be disabled
+        numRolledDice = p.get_rolled_dice().size();
 
         ArrayList<Integer> roll_results = calculate_roll_value(p.get_rolled_dice());
 
@@ -488,6 +471,13 @@ public class Play extends ActionBarActivity {
         rollAgain.setClickable(false);
         rollAgain.setBackgroundResource(R.drawable.rollagaindisabled);
 
+
+        // enable clicking dice in case all scored previously and were disabled
+        updateDice(p.get_rolled_dice(), diceView, false);
+
+
+
+
         if (roll_results.get(1) == 0) {
             // no scoring dice
             Toast.makeText(this, "Bust!",Toast.LENGTH_LONG).show();
@@ -497,7 +487,9 @@ public class Play extends ActionBarActivity {
         else {
             if (roll_results.get(1) == p.get_rolled_dice().size()) {
                 Toast.makeText(this, "All 6 dice have scored, you may roll them all again.", Toast.LENGTH_LONG).show();
-                // disable the dice until the roll again button is clicked again  -- prevents weird reset issue
+                updateTurnScore(rollScore);
+
+                // disable the dice until the roll again button is clicked again  -- prevents resetting
                 for(int i = 0; i < diceView.size(); i++) {
                     ImageButton ib = diceView.get(i);
                     ib.setClickable(false);
@@ -508,12 +500,11 @@ public class Play extends ActionBarActivity {
                 rollAgain.setClickable(true);
                 allScored = true;
             } else {
-                //String turnPts = Integer.toString(rollScore);
                 updateTurnScore(heldScore);
             }
         }
 
-        updateDice(p.get_rolled_dice(), diceView, false);
+        //updateDice(p.get_rolled_dice(), diceView, false);
         if (allScored) {
             turnTotal += roll_results.get(0);
             p.reset_dice();
@@ -524,8 +515,7 @@ public class Play extends ActionBarActivity {
     public void endTurn() {
         // when a user is done with their turn
         // turn points are added to total (IF the user is over the 1000 point entry threshold)
-        // p.reset_dice()
-        // next_player()
+
         Player p = players.get(currentPlayer);
 
         p.reset_dice();
