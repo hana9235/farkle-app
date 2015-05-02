@@ -577,18 +577,17 @@ public class Play extends ActionBarActivity {
         // so pass that index back to game, which will move that die to the player's hold list
 
         ImageButton clicked = diceView.get(position);
-        clicked.setBackgroundResource(R.drawable.blankdie);
-        clicked.setClickable(false);
+//        clicked.setBackgroundResource(R.drawable.blankdie);
+//        clicked.setClickable(false);
         Player p = players.get(currentPlayer);
         if(viewingHeld) {
-            // ?????
+            // you're on the held screen and clicked, so you want to unHold a die
             p.unHold(position);
-            // if viewing held and unHolding -- subtract that point value instead
-            // which is probably done by recalculating the held dice and just setting that to holdScore
             rollAgain.setClickable(false);
             rollAgain.setBackgroundResource(R.drawable.rollagaindisabled);
             updateDice(p.get_held_dice(), diceView, true);
         } else {
+            // on the rolling screen, HOLD a die
             p.holdOne(position);
             rollAgain.setClickable(true);
             rollAgain.setBackgroundResource(R.drawable.rollagain);
@@ -625,16 +624,25 @@ public class Play extends ActionBarActivity {
         // etc, the AI will hold dice, and choose whether or not to roll again
         // return value true == rolling again
         // return value false == endTurn
+        Player p = players.get(currentPlayer);
+        ArrayList<Die> dList = p.get_rolled_dice();
 
         if(turnTotal > 1000) {
             // already a good score, may as well stop
             return false;
         }
-        Player p = players.get(currentPlayer);
-        if (p.get_rolled_dice().size() < 3) {
+        if (dList.size() < 3) {
             // only one or two dice left to roll, good chance you will bust
             // so don't roll again
             return false;
+        }
+
+        if(rollResults.get(1) <= 2) {
+            // rolled 1's or 5's, only hold 1's because 5's aren't worth it
+
+            for(int i = 0; i < dList.size(); i++) {
+                Die d = dList.get(i);
+            }
         }
 
         return false;
