@@ -503,7 +503,16 @@ class Player {
         return this.total_score;
     }
 
+    public boolean get_on_board() { return this.on_board; }
+
     public void add_to_score(int points) {
+        if(!this.on_board) {
+            if(points >= 1000) {
+                this.on_board = true;
+                this.total_score += points;
+            }
+            return;
+        }
         this.total_score += points;
     }
 

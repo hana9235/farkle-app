@@ -16,6 +16,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -26,6 +27,7 @@ public class Play extends ActionBarActivity {
     ImageButton d1, d2, d3, d4, d5, d6, rollAgain, endTurn, showHeld;
     TextView playerName, totalScore, turnScore;
     boolean viewingHeld, firstRollOfTurn;
+    Random rand;
 
     // game vars here
     boolean game_won;
@@ -54,6 +56,7 @@ public class Play extends ActionBarActivity {
         diceView.add(d5);
         diceView.add(d6);
 
+        rand = new Random();
 
         for(int i = 0; i < diceView.size(); i++) {
             final int diePosition = i;
@@ -445,6 +448,16 @@ public class Play extends ActionBarActivity {
         recalculateHeld();
 
         Player p = players.get(currentPlayer);
+
+        if(p.get_ai()) {
+            try {
+                Thread.sleep(500);
+            }
+            catch (InterruptedException e) {
+
+            }
+        }
+
         boolean allScored = false;
 
         p.roll_dice();
@@ -463,6 +476,7 @@ public class Play extends ActionBarActivity {
         rollAgain.setClickable(false);
         rollAgain.setBackgroundResource(R.drawable.rollagaindisabled);
 
+//        animateRoll();
 
         // enable clicking dice in case all scored previously and were disabled
         updateDice(p.get_rolled_dice(), diceView, false);
@@ -470,24 +484,13 @@ public class Play extends ActionBarActivity {
 
         if (roll_results.get(1) == 0) {
             // no scoring dice
+
             if(p.get_ai()) {
                 endTurn();
             }
 
-            AlertDialog.Builder a = new AlertDialog.Builder(this)
-                    .setTitle("Bust!")
-                    .setMessage("You busted this turn.")
-                    .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            endTurn();
-                            dialog.dismiss();
-                        }
-                    })
-                    .setIcon(R.drawable.icon_small);
-            a.show();
-
             turnScore.setText("0");
+            endTurn();
 
         } else {
             if (roll_results.get(1) == p.get_rolled_dice().size()) {
@@ -531,10 +534,23 @@ public class Play extends ActionBarActivity {
 
         if (p.get_ai()) {
             boolean goingAgain = aiDecision(roll_results);
-            if (goingAgain) {
-                rollAgain();
-            } else {
-                endTurn();
+            // we need to wait a few seconds
+            if(goingAgain) {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        rollAgain();
+                    }
+                }, 2000);
+                //rollAgain();
+            }
+            else {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        endTurn();
+                    }
+                }, 2000);
             }
         }
     }
@@ -547,32 +563,41 @@ public class Play extends ActionBarActivity {
 
         p.reset_dice();
         int thisTurnTotal = Integer.parseInt(turnScore.getText().toString());
+        p.add_to_score(thisTurnTotal);
         String msg;
-        if(p.get_ai()) {
-            if(thisTurnTotal == 0) {
+        if(thisTurnTotal == 0) {
+            if(p.get_on_board()) {
                 msg = p.get_name() + " busted this turn.";
+            }
+            else {
+                msg = p.get_name() + " did not score enough to get on the board.";
+            }
+        }
+        else {
+            if(!p.get_on_board()) {
+                msg = p.get_name() + " did not score enough to get on the board.";
             }
             else {
                 msg = p.get_name() + " scored " + thisTurnTotal + " this turn.";
             }
-
-            if(thisTurnTotal != 0) {
-                // already showed an alert for busting
-                System.out.println("AI's total score is now: " + p.get_score());
-                AlertDialog.Builder a = new AlertDialog.Builder(this)
-                        .setTitle(p.get_name() + "'s turn")
-                        .setMessage(msg)
-                        .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        })
-                        .setIcon(R.drawable.icon_small);
-                a.show();
-            }
         }
-        updateTotalScore(thisTurnTotal);
+
+
+        System.out.println(p.get_name() +"'s total score is now: " + p.get_score());
+
+        AlertDialog.Builder endTurnDialog = new AlertDialog.Builder(this)
+                .setTitle(p.get_name() + "'s turn")
+                .setMessage(msg)
+                .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        //rollAgain();
+                    }
+                })
+                .setIcon(R.drawable.icon_small);
+
+        endTurnDialog.show();
 
         turnTotal = 0;
 
@@ -593,32 +618,14 @@ public class Play extends ActionBarActivity {
         rollAgain();
     }
 
-    public void updateTotalScore(int points) {
-        Player p = players.get(currentPlayer);
-        if(p.get_score() >= 1000) { // already on board
-            p.add_to_score(points);
-        } else {
-            // not on board, did they make the threshold?
-            if (points >= 1000) {
-                p.add_to_score(points);
+    public void aiPauseEndTurn() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                endTurn();
             }
-            else {
-                AlertDialog.Builder a = new AlertDialog.Builder(this)
-                        .setTitle("Too bad!")
-                        .setMessage(p.get_name() + " did not score enough points to get on the board.")
-                        .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        })
-                        .setIcon(R.drawable.icon_small);
-                a.show();
-            }
-        }
-
+        }, 2000);
     }
-
 
     public void updateViews() {
         Player p = players.get(currentPlayer);
@@ -755,5 +762,49 @@ public class Play extends ActionBarActivity {
         }
 
         return counted;
+    }
+
+
+    public void animateRoll() {
+        final ArrayList<Die> dList = players.get(currentPlayer).get_rolled_dice();
+
+        for(int x = 0; x < 20; x++) {
+
+            Handler h = new Handler();
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+
+                    for (int i = 0; i < dList.size(); i++) {
+                        //try { Thread.sleep(100); }
+                        //catch (InterruptedException e) {}
+
+                        ImageButton currentDie = diceView.get(i);
+                        int r = rand.nextInt(6) + 1;
+                        switch (r) {
+                            case 1:
+                                currentDie.setBackgroundResource(R.drawable.d1);
+                                break;
+                            case 2:
+                                currentDie.setBackgroundResource(R.drawable.d2);
+                                break;
+                            case 3:
+                                currentDie.setBackgroundResource(R.drawable.d3);
+                                break;
+                            case 4:
+                                currentDie.setBackgroundResource(R.drawable.d4);
+                                break;
+                            case 5:
+                                currentDie.setBackgroundResource(R.drawable.d5);
+                                break;
+                            case 6:
+                                currentDie.setBackgroundResource(R.drawable.d6);
+                                break;
+                        }
+                    }
+                }
+            }, 100);
+
+        }
     }
 }
