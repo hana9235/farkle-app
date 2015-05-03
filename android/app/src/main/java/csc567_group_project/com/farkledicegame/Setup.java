@@ -33,12 +33,16 @@ public class Setup extends ActionBarActivity {
         startGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-                    int humans = Integer.parseInt(numHumans.getText().toString());
-                    int AIs = Integer.parseInt(numAI.getText().toString());
+                int humans, AIs;
+                if(numHumans.getText().toString().equals("")) {
+                    humans = 0;
+                } else {
+                    humans = Integer.parseInt(numHumans.getText().toString());
                 }
-                catch (Exception e) {
-                    Toast.makeText(getApplicationContext(), "There must be values in both fields.", Toast.LENGTH_LONG).show();
+                if (numAI.getText().toString().equals("")) {
+                    AIs = 0;
+                } else {
+                    AIs = Integer.parseInt(numAI.getText().toString());
                 }
 
             int totalPlayers = humans + AIs;

@@ -86,7 +86,6 @@ public class Play extends ActionBarActivity {
         showHeld.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //recalculateHeld();
 
                 if (viewingHeld) {
                     viewingHeld = false;
@@ -147,12 +146,12 @@ public class Play extends ActionBarActivity {
                     showHeld.setBackgroundResource(R.drawable.showhelddisabled);
                     rollAgain.setClickable(false);
                     rollAgain.setBackgroundResource(R.drawable.rollagaindisabled);
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
+               //     new Handler().postDelayed(new Runnable() {
+                 //       @Override
+                   //     public void run() {
                             AIRollAgain();
-                        }
-                    }, 3000);
+                     //   }
+                   // }, 3000);
                 } else {
                     showHeld.setBackgroundResource(R.drawable.showheld);
                     showHeld.setClickable(true);
@@ -728,20 +727,20 @@ public class Play extends ActionBarActivity {
 
         final Player player = p;
         boolean again = aiDecision(results);
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
+       // new Handler().postDelayed(new Runnable() {
+         //   @Override
+   //         public void run() {
                 updateDice(player.get_rolled_dice(), diceView, false);
-            }
-        }, 2000);
+     //       }
+ //       }, 2000);
 
         if(again) {
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
+           // new Handler().postDelayed(new Runnable() {
+             //   @Override
+               // public void run() {
                     AIRollAgain();
-                }
-            }, 2500);
+               // }
+           // }, 2500);
         } else {
             //blankOutScreen();
             endTurn();
