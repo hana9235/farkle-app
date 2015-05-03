@@ -489,7 +489,7 @@ public class Play extends ActionBarActivity {
 
         } else {
             if (roll_results.get(1) == p.get_rolled_dice().size()) {
-  //              if(!p.get_ai()) {
+                if(!p.get_ai()) {
                     // only humans should get this popup, the AI won't care
                     AlertDialog.Builder a = new AlertDialog.Builder(this)
                             .setTitle("Good roll " + p.get_name() +"!")
@@ -502,7 +502,7 @@ public class Play extends ActionBarActivity {
                             })
                             .setIcon(R.drawable.icon_small);
                     a.show();
-   //             }
+                }
                 updateTurnScore(rollScore);
 
                 // disable the dice until the roll again button is clicked again  -- prevents resetting
@@ -527,27 +527,6 @@ public class Play extends ActionBarActivity {
 
         firstRollOfTurn = false;
 
-        /**  // keeping this only because it showed animation decently
-        if (p.get_ai()) {
-            boolean goingAgain = aiDecision(roll_results);
-            // we need to wait a few seconds
-            if(goingAgain) {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        rollAgain();
-                    }
-                }, 2000);
-            }
-            else {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        endTurn();
-                    }
-                }, 1000);
-            }
-        }  */
     }
 
     public void endTurn() {
@@ -555,6 +534,8 @@ public class Play extends ActionBarActivity {
         // turn points are added to total (IF the user is over the 1000 point entry threshold)
 
         Player p = players.get(currentPlayer);
+        advancePlayer();
+        final Player pNext = players.get(currentPlayer);
 
         turnTotal += heldScore;
 
@@ -584,6 +565,12 @@ public class Play extends ActionBarActivity {
 
         System.out.println(p.get_name() +"'s total score is now: " + p.get_score());
 
+        // check against winner threshold first, avoid window leakage errors
+        if (p.get_score() >= pointsToWin) {
+            toWinner();
+            // this activity will be finish()'d when Winner starts, no return needed
+        }
+
         AlertDialog.Builder endTurnDialog = new AlertDialog.Builder(this)
                 .setTitle(p.get_name() + "'s turn")
                 .setMessage(msg)
@@ -591,7 +578,19 @@ public class Play extends ActionBarActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
-                        rollAgain();
+                        if(pNext.get_ai()) {
+                            new Handler().postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    AIRollAgain();
+                                }
+                            }, 2000);
+                            //AIRollAgain();
+                        } else {
+                            rollAgain.setClickable(false);
+                            rollAgain.setBackgroundResource(R.drawable.rollagaindisabled);
+                            //rollAgain();
+                        }
                     }
                 })
                 .setIcon(R.drawable.icon_small);
@@ -600,12 +599,8 @@ public class Play extends ActionBarActivity {
 
         turnTotal = 0;
 
-        if (p.get_score() >= pointsToWin) {
-            toWinner();
-            // this activity will be finish()'d when Winner starts, no return needed
-        }
 
-        advancePlayer();
+ //       advancePlayer();
         updateViews();
 
         rollAgain.setClickable(true); // in case the user busted and rollAgain was disabled
@@ -669,6 +664,55 @@ public class Play extends ActionBarActivity {
 
         heldScore = holdScoreResults.get(0);
         turnScore.setText(Integer.toString(holdScoreResults.get(0) + turnTotal));
+    }
+
+
+    protected void AIRollAgain() {
+        Player p = players.get(currentPlayer);
+        recalculateHeld();
+
+        p.roll_dice();
+
+        updateDice(p.get_rolled_dice(), diceView, false);
+
+        ArrayList<Integer> results = calculate_roll_value(p.get_rolled_dice());
+        if(results.get(1) == 0) {
+            // bust
+            turnTotal = 0;
+            endTurn();
+        }
+
+        if(results.get(1) == p.get_rolled_dice().size()) {
+            // all rolled dice scored
+            turnTotal += results.get(0);
+            p.reset_dice();
+            AIRollAgain();
+        }
+
+        firstRollOfTurn = false;
+
+        boolean again = aiDecision(results);
+        if(again) {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    AIRollAgain();
+                }
+            }, 1000);
+            //AIRollAgain();
+        } else {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+
+                    endTurn();
+                    //rollAgain();
+                }
+            }, 2000);
+            //endTurn();
+        }
+
+
     }
 
     protected boolean aiDecision(ArrayList<Integer> rollResults) {
@@ -760,8 +804,6 @@ public class Play extends ActionBarActivity {
         final ArrayList<Die> dList = players.get(currentPlayer).get_rolled_dice();
 
         for(int x = 0; x < 20; x++) {
-
-            Handler h = new Handler();
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
