@@ -456,14 +456,6 @@ public class Play extends ActionBarActivity {
 
         Player p = players.get(currentPlayer);
 
-        if(p.get_ai()) {
-            try {
-                Thread.sleep(500);
-            }
-            catch (InterruptedException e) {
-
-            }
-        }
 
         boolean allScored = false;
 
@@ -492,16 +484,12 @@ public class Play extends ActionBarActivity {
         if (roll_results.get(1) == 0) {
             // no scoring dice
 
-            if(p.get_ai()) {
-                endTurn();
-            }
-
-            turnScore.setText("0");
+           turnScore.setText("0");
             endTurn();
 
         } else {
             if (roll_results.get(1) == p.get_rolled_dice().size()) {
-                if(!p.get_ai()) {
+  //              if(!p.get_ai()) {
                     // only humans should get this popup, the AI won't care
                     AlertDialog.Builder a = new AlertDialog.Builder(this)
                             .setTitle("Good roll " + p.get_name() +"!")
@@ -514,7 +502,7 @@ public class Play extends ActionBarActivity {
                             })
                             .setIcon(R.drawable.icon_small);
                     a.show();
-                }
+   //             }
                 updateTurnScore(rollScore);
 
                 // disable the dice until the roll again button is clicked again  -- prevents resetting
@@ -539,6 +527,7 @@ public class Play extends ActionBarActivity {
 
         firstRollOfTurn = false;
 
+        /**  // keeping this only because it showed animation decently
         if (p.get_ai()) {
             boolean goingAgain = aiDecision(roll_results);
             // we need to wait a few seconds
@@ -558,7 +547,7 @@ public class Play extends ActionBarActivity {
                     }
                 }, 1000);
             }
-        }
+        }  */
     }
 
     public void endTurn() {
