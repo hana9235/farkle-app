@@ -114,6 +114,9 @@ public class Play extends ActionBarActivity {
         rollAgain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                System.out.println("CLICKED ROLL AGAIN");
+
+
                 Player p = players.get(currentPlayer);
 
                 // set flag bits in the held dice to -1 so they're locked
@@ -127,9 +130,13 @@ public class Play extends ActionBarActivity {
                 rollAgain();
             }
         });
+
         endTurn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                System.out.println("CLICKED END TURN");
+                ArrayList<Integer> lastRollResults = calculate_roll_value(players.get(currentPlayer).get_rolled_dice());
+                heldScore += lastRollResults.get(0);
                 endTurn();
             }
         });
@@ -138,7 +145,7 @@ public class Play extends ActionBarActivity {
         // initialize game variables
         Intent fromSetup = getIntent();
         totalPlayers = fromSetup.getIntExtra("TOTAL", 2); // default value is two players (1 human, 1 AI)
-        int numHumans = fromSetup.getIntExtra("NUMHUMANS", 1); // default to 1 human out of 2 players
+        int numHumans = fromSetup.getIntExtra("NUMHUMANS", 0); // default to 1 human out of 2 players
 
         players = createPlayers(totalPlayers, numHumans);
         currentPlayer = 0; // this is an index that loops through players
@@ -542,7 +549,6 @@ public class Play extends ActionBarActivity {
                         rollAgain();
                     }
                 }, 2000);
-                //rollAgain();
             }
             else {
                 new Handler().postDelayed(new Runnable() {
@@ -550,7 +556,7 @@ public class Play extends ActionBarActivity {
                     public void run() {
                         endTurn();
                     }
-                }, 2000);
+                }, 1000);
             }
         }
     }
@@ -561,11 +567,15 @@ public class Play extends ActionBarActivity {
 
         Player p = players.get(currentPlayer);
 
+        turnTotal += heldScore;
+
         p.reset_dice();
-        int thisTurnTotal = Integer.parseInt(turnScore.getText().toString());
-        p.add_to_score(thisTurnTotal);
+        p.add_to_score(turnTotal);
+
+        System.out.println(turnTotal);
+
         String msg;
-        if(thisTurnTotal == 0) {
+        if(turnTotal == 0) {
             if(p.get_on_board()) {
                 msg = p.get_name() + " busted this turn.";
             }
@@ -578,7 +588,7 @@ public class Play extends ActionBarActivity {
                 msg = p.get_name() + " did not score enough to get on the board.";
             }
             else {
-                msg = p.get_name() + " scored " + thisTurnTotal + " this turn.";
+                msg = p.get_name() + " scored " + turnTotal + " this turn.";
             }
         }
 
@@ -592,12 +602,12 @@ public class Play extends ActionBarActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
-                        //rollAgain();
+                        rollAgain();
                     }
                 })
                 .setIcon(R.drawable.icon_small);
-
         endTurnDialog.show();
+
 
         turnTotal = 0;
 
@@ -615,17 +625,9 @@ public class Play extends ActionBarActivity {
 
         // reset to check for 6 of same value on first roll, which is automatic win
         firstRollOfTurn = true;
-        rollAgain();
+        //rollAgain();
     }
 
-    public void aiPauseEndTurn() {
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                endTurn();
-            }
-        }, 2000);
-    }
 
     public void updateViews() {
         Player p = players.get(currentPlayer);
