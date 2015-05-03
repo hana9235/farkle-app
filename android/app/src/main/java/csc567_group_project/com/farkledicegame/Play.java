@@ -30,7 +30,7 @@ public class Play extends ActionBarActivity {
     Random rand;
 
     // game vars here
-    boolean isRolling, allScored;
+    boolean isRolling, allScored, gameWon;
     final int pointsToWin = 10000;
     int turnTotal, heldScore, numRolledDice, totalPlayers, currentPlayer;
 
@@ -80,6 +80,7 @@ public class Play extends ActionBarActivity {
         showHeld = (ImageButton) findViewById(R.id.showHeld);
 
         viewingHeld = false;
+        gameWon = false;
         allScored = false;
 
         showHeld.setOnClickListener(new View.OnClickListener() {
@@ -170,6 +171,7 @@ public class Play extends ActionBarActivity {
                     ArrayList<Integer> lastRollResults = calculate_roll_value(players.get(currentPlayer).get_rolled_dice());
                     heldScore += lastRollResults.get(0);
                 }
+                blankOutScreen();
                 endTurn();
             }
         });
@@ -270,7 +272,9 @@ public class Play extends ActionBarActivity {
         if(rollScore == 0 || roll_results.get(1) == 0) {
             // no scoring dice
             turnScore.setText("0");
-            blankOutScreen();
+            turnTotal = 0;
+            heldScore = 0;
+            //blankOutScreen();
             endTurn();
         }
         allScored = false;
@@ -559,17 +563,13 @@ public class Play extends ActionBarActivity {
     public void endTurn() {
         // when a user is done with their turn
         // turn points are added to total (IF the user is over the 1000 point entry threshold)
-
+        //blankOutScreen();
         System.out.println("IN ENDTURN");
         isRolling = false;
         allScored = false;
 
+
         Player p = players.get(currentPlayer);
-        int checkForBust = Integer.parseInt(turnScore.getText().toString());
-        if(checkForBust == 0) {
-            turnTotal = 0;
-            heldScore = 0;
-        }
 
         turnTotal += heldScore;
 
@@ -599,7 +599,7 @@ public class Play extends ActionBarActivity {
 
         // check against winner threshold first
         if (p.get_score() >= pointsToWin) {
-            toWinner();
+            gameWon = true;
             // this activity will be finish()'d when Winner starts, no return needed
         }
 
@@ -610,6 +610,7 @@ public class Play extends ActionBarActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
+
                     }
                 })
                 .setIcon(R.drawable.icon_small);
@@ -628,6 +629,16 @@ public class Play extends ActionBarActivity {
         firstRollOfTurn = true;
         System.out.println("ENDING TURN");
 
+        updateViews();
+
+
+        for(int i = 0; i < diceView.size(); i++) {
+            ImageButton ib = diceView.get(i);
+            ib.setClickable(false);
+            ib.setBackgroundResource(R.drawable.blankdie);
+            diceView.set(i, ib);
+        }
+
         blankOutScreen();
     }
 
@@ -645,10 +656,6 @@ public class Play extends ActionBarActivity {
         //  0  1
         //  2  3
         //  4  5
-
-        ImageButton clicked = diceView.get(position);
-//        clicked.setBackgroundResource(R.drawable.blankdie);
-//        clicked.setClickable(false);
         Player p = players.get(currentPlayer);
         if(viewingHeld) {
             // you're on the held screen and clicked, so you want to unHold a die
@@ -719,8 +726,15 @@ public class Play extends ActionBarActivity {
 
         firstRollOfTurn = false;
 
+        final Player player = p;
         boolean again = aiDecision(results);
-        updateDice(p.get_rolled_dice(), diceView, false);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                updateDice(player.get_rolled_dice(), diceView, false);
+            }
+        }, 2000);
+
         if(again) {
             new Handler().postDelayed(new Runnable() {
                 @Override
@@ -729,7 +743,7 @@ public class Play extends ActionBarActivity {
                 }
             }, 2500);
         } else {
-            blankOutScreen();
+            //blankOutScreen();
             endTurn();
         }
     }
@@ -858,52 +872,9 @@ public class Play extends ActionBarActivity {
 
         rollAgain.setClickable(true);
         rollAgain.setBackgroundResource(R.drawable.startturn);
-    }
 
-    public void animateRoll() {
-        final ArrayList<Die> dList = players.get(currentPlayer).get_rolled_dice();
-
-        for(int x = 0; x < 5; x++) {
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-
-                    for (int i = 0; i < dList.size(); i++) {
-                        final int j = i;
-                        new Handler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-
-                                ImageButton currentDie = diceView.get(j);
-                                int r = rand.nextInt(6) + 1;
-                                switch (r) {
-                                    case 1:
-                                        currentDie.setBackgroundResource(R.drawable.d1);
-                                        break;
-                                    case 2:
-                                        currentDie.setBackgroundResource(R.drawable.d2);
-                                        break;
-                                    case 3:
-                                        currentDie.setBackgroundResource(R.drawable.d3);
-                                        break;
-                                    case 4:
-                                        currentDie.setBackgroundResource(R.drawable.d4);
-                                        break;
-                                    case 5:
-                                        currentDie.setBackgroundResource(R.drawable.d5);
-                                        break;
-                                    case 6:
-                                        currentDie.setBackgroundResource(R.drawable.d6);
-                                        break;
-                                }
-
-                              }
-                          }, 200);
-                    }
-                }
-            }, 500);
-
-            updateDice(players.get(currentPlayer).get_rolled_dice(), diceView, false);
+        if(gameWon) {
+            toWinner();
         }
     }
 }
