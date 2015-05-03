@@ -30,7 +30,7 @@ public class Play extends ActionBarActivity {
     Random rand;
 
     // game vars here
-    boolean game_won;
+    boolean isRolling, allScored;
     final int pointsToWin = 10000;
     int turnTotal, heldScore, numRolledDice, totalPlayers, currentPlayer;
 
@@ -80,6 +80,7 @@ public class Play extends ActionBarActivity {
         showHeld = (ImageButton) findViewById(R.id.showHeld);
 
         viewingHeld = false;
+        allScored = false;
 
         showHeld.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -116,6 +117,18 @@ public class Play extends ActionBarActivity {
             public void onClick(View v) {
                 System.out.println("CLICKED ROLL AGAIN");
 
+                if(!isRolling) {
+                    isRolling = true;
+                    players.get(currentPlayer).reset_dice();
+                    rollAgain.setBackgroundResource(R.drawable.rollagain);
+                    //rollAgain.setClickable(true);
+
+                    endTurn.setBackgroundResource(R.drawable.endturn);
+                    endTurn.setClickable(true);
+
+                    showHeld.setBackgroundResource(R.drawable.showheld);
+                    showHeld.setClickable(true);
+                }
 
                 Player p = players.get(currentPlayer);
 
@@ -125,9 +138,27 @@ public class Play extends ActionBarActivity {
                 turnTotal += heldScore;
                 heldScore = 0;
 
-                p.lockHeld();
-
-                rollAgain();
+                if(p.get_ai()) {
+                    // disable all the buttons so the user can't mess it up
+                    endTurn.setClickable(false);
+                    endTurn.setBackgroundResource(R.drawable.endturndisabled);
+                    showHeld.setClickable(false);
+                    showHeld.setBackgroundResource(R.drawable.showhelddisabled);
+                    rollAgain.setClickable(false);
+                    rollAgain.setBackgroundResource(R.drawable.rollagaindisabled);
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            AIRollAgain();
+                        }
+                    }, 3000);
+                } else {
+                    showHeld.setBackgroundResource(R.drawable.showheld);
+                    showHeld.setClickable(true);
+                    endTurn.setBackgroundResource(R.drawable.endturn);
+                    endTurn.setClickable(true);
+                    rollAgain();
+                }
             }
         });
 
@@ -135,8 +166,10 @@ public class Play extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 System.out.println("CLICKED END TURN");
-                ArrayList<Integer> lastRollResults = calculate_roll_value(players.get(currentPlayer).get_rolled_dice());
-                heldScore += lastRollResults.get(0);
+                if(!allScored) {
+                    ArrayList<Integer> lastRollResults = calculate_roll_value(players.get(currentPlayer).get_rolled_dice());
+                    heldScore += lastRollResults.get(0);
+                }
                 endTurn();
             }
         });
@@ -150,15 +183,16 @@ public class Play extends ActionBarActivity {
         players = createPlayers(totalPlayers, numHumans);
         currentPlayer = 0; // this is an index that loops through players
 
-        Player p = players.get(currentPlayer);
         updateViews();  // set name and score views to appropriate player data
         heldScore = 0;
         turnTotal = 0;
         numRolledDice = 0;
 
         firstRollOfTurn = true;
+        isRolling = false;
 
-        rollAgain();  // start the game
+        //rollAgain();  // start the game
+        blankOutScreen();
 
     }
 
@@ -172,8 +206,6 @@ public class Play extends ActionBarActivity {
 
         return true;
     }
-
-
 
     public ArrayList<Player> createPlayers(int totalPlayers, int numHumans) {
         // generate all the players necessary, set AI state and name them accordingly
@@ -211,6 +243,78 @@ public class Play extends ActionBarActivity {
         // add the held score to the current turnTotal
         turnTotal += heldScore;
         heldScore = 0;
+    }
+
+    public void rollAgain() {
+        // make sure current score is up to date
+        recalculateHeld();
+        Player p = players.get(currentPlayer);
+        p.roll_dice();
+        allScored = false;
+
+        //animateRoll();
+        updateDice(p.get_rolled_dice(),diceView, false);
+
+        // the user must hold at least one to keep rolling
+        // this will keep track of how many dice were rolled this turn
+        // if the user goes to the held screen and then back, rollAgain should be disabled
+        numRolledDice = p.get_rolled_dice().size();
+        rollAgain.setClickable(false);
+        rollAgain.setBackgroundResource(R.drawable.rollagaindisabled);
+
+        showHeld.setClickable(true);
+        ArrayList<Integer> roll_results = calculate_roll_value(p.get_rolled_dice());
+
+        // use roll score as temporary value to prevent scoring issues with turnTotal
+        int rollScore = roll_results.get(0);
+        if(rollScore == 0 || roll_results.get(1) == 0) {
+            // no scoring dice
+            turnScore.setText("0");
+            blankOutScreen();
+            endTurn();
+        }
+        allScored = false;
+
+        // enable clicking dice in case all scored previously and were disabled
+        updateDice(p.get_rolled_dice(), diceView, false);
+
+        if (roll_results.get(1) == p.get_rolled_dice().size()) {
+            allScored = true;
+            AlertDialog.Builder a = new AlertDialog.Builder(this)
+                    .setTitle("Good roll " + p.get_name() + "!")
+                    .setMessage("All 6 dice have scored, you may roll them all again.")
+                    .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    })
+                    .setIcon(R.drawable.icon_small);
+            a.show();
+
+            showHeld.setClickable(false);
+
+            updateTurnScore(rollScore);
+            for (int i = 0; i < diceView.size(); i++) {
+                ImageButton ib = diceView.get(i);
+                ib.setClickable(false);
+                diceView.set(i, ib);
+            }
+
+            rollAgain.setBackgroundResource(R.drawable.rollagain);
+            rollAgain.setClickable(true);
+            // ;
+
+            if (allScored) {
+                turnTotal += roll_results.get(0);
+                p.reset_dice();
+            }
+
+            else {
+                updateTurnScore(heldScore);
+            }
+        }
+        firstRollOfTurn = false;
     }
 
     public void updateDice(ArrayList<Die> dice, ArrayList<ImageButton> diceView, boolean heldDice) {
@@ -450,99 +554,27 @@ public class Play extends ActionBarActivity {
         return results;
     }
 
-    public void rollAgain() {
-        // make sure current score is up to date
-        recalculateHeld();
 
-        Player p = players.get(currentPlayer);
-
-
-        boolean allScored = false;
-
-        p.roll_dice();
-
-        // the user must hold at least one to keep rolling
-        // this will keep track of how many dice were rolled this turn
-        // if the user goes to the held screen and then back, rollAgain should be disabled
-        numRolledDice = p.get_rolled_dice().size();
-
-        ArrayList<Integer> roll_results = calculate_roll_value(p.get_rolled_dice());
-
-        // use roll score as temporary value to prevent scoring issues with turnTotal
-        int rollScore = roll_results.get(0);
-
-        // player must hold dice to keep rolling, or end turn
-        rollAgain.setClickable(false);
-        rollAgain.setBackgroundResource(R.drawable.rollagaindisabled);
-
-//        animateRoll();
-
-        // enable clicking dice in case all scored previously and were disabled
-        updateDice(p.get_rolled_dice(), diceView, false);
-
-
-        if (roll_results.get(1) == 0) {
-            // no scoring dice
-
-           turnScore.setText("0");
-            endTurn();
-
-        } else {
-            if (roll_results.get(1) == p.get_rolled_dice().size()) {
-                if(!p.get_ai()) {
-                    // only humans should get this popup, the AI won't care
-                    AlertDialog.Builder a = new AlertDialog.Builder(this)
-                            .setTitle("Good roll " + p.get_name() +"!")
-                            .setMessage("All 6 dice have scored, you may roll them all again.")
-                            .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
-                                }
-                            })
-                            .setIcon(R.drawable.icon_small);
-                    a.show();
-                }
-                updateTurnScore(rollScore);
-
-                // disable the dice until the roll again button is clicked again  -- prevents resetting
-                for (int i = 0; i < diceView.size(); i++) {
-                    ImageButton ib = diceView.get(i);
-                    ib.setClickable(false);
-                    diceView.set(i, ib);
-                }
-
-                rollAgain.setBackgroundResource(R.drawable.rollagain);
-                rollAgain.setClickable(true);
-                allScored = true;
-            } else {
-                updateTurnScore(heldScore);
-            }
-        }
-
-        if (allScored) {
-            turnTotal += roll_results.get(0);
-            p.reset_dice();
-        }
-
-        firstRollOfTurn = false;
-
-    }
 
     public void endTurn() {
         // when a user is done with their turn
         // turn points are added to total (IF the user is over the 1000 point entry threshold)
 
+        System.out.println("IN ENDTURN");
+        isRolling = false;
+        allScored = false;
+
         Player p = players.get(currentPlayer);
-        advancePlayer();
-        final Player pNext = players.get(currentPlayer);
+        int checkForBust = Integer.parseInt(turnScore.getText().toString());
+        if(checkForBust == 0) {
+            turnTotal = 0;
+            heldScore = 0;
+        }
 
         turnTotal += heldScore;
 
         p.reset_dice();
         p.add_to_score(turnTotal);
-
-        System.out.println(turnTotal);
 
         String msg;
         if(turnTotal == 0) {
@@ -565,7 +597,7 @@ public class Play extends ActionBarActivity {
 
         System.out.println(p.get_name() +"'s total score is now: " + p.get_score());
 
-        // check against winner threshold first, avoid window leakage errors
+        // check against winner threshold first
         if (p.get_score() >= pointsToWin) {
             toWinner();
             // this activity will be finish()'d when Winner starts, no return needed
@@ -574,34 +606,19 @@ public class Play extends ActionBarActivity {
         AlertDialog.Builder endTurnDialog = new AlertDialog.Builder(this)
                 .setTitle(p.get_name() + "'s turn")
                 .setMessage(msg)
-                .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+                .setNeutralButton("Okay", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
-                        if(pNext.get_ai()) {
-                            new Handler().postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    AIRollAgain();
-                                }
-                            }, 2000);
-                            //AIRollAgain();
-                        } else {
-                            rollAgain.setClickable(false);
-                            rollAgain.setBackgroundResource(R.drawable.rollagaindisabled);
-                            //rollAgain();
-                        }
                     }
                 })
                 .setIcon(R.drawable.icon_small);
         endTurnDialog.show();
 
-
+        advancePlayer();
         turnTotal = 0;
-
-
- //       advancePlayer();
-        updateViews();
+        heldScore = 0;
+        turnScore.setText("0");
 
         rollAgain.setClickable(true); // in case the user busted and rollAgain was disabled
         rollAgain.setBackgroundResource(R.drawable.rollagain);
@@ -609,7 +626,9 @@ public class Play extends ActionBarActivity {
 
         // reset to check for 6 of same value on first roll, which is automatic win
         firstRollOfTurn = true;
-        //rollAgain();
+        System.out.println("ENDING TURN");
+
+        blankOutScreen();
     }
 
 
@@ -675,11 +694,19 @@ public class Play extends ActionBarActivity {
 
         updateDice(p.get_rolled_dice(), diceView, false);
 
+        // disable the dice so the user won't screw it up
+        for(int i = 0; i < diceView.size(); i++) {
+            ImageButton ib = diceView.get(i);
+            ib.setClickable(false);
+            diceView.set(i, ib);
+        }
+
         ArrayList<Integer> results = calculate_roll_value(p.get_rolled_dice());
         if(results.get(1) == 0) {
             // bust
             turnTotal = 0;
             endTurn();
+            return;
         }
 
         if(results.get(1) == p.get_rolled_dice().size()) {
@@ -687,32 +714,24 @@ public class Play extends ActionBarActivity {
             turnTotal += results.get(0);
             p.reset_dice();
             AIRollAgain();
+            return;
         }
 
         firstRollOfTurn = false;
 
         boolean again = aiDecision(results);
+        updateDice(p.get_rolled_dice(), diceView, false);
         if(again) {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     AIRollAgain();
                 }
-            }, 1000);
-            //AIRollAgain();
+            }, 2500);
         } else {
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-
-                    endTurn();
-                    //rollAgain();
-                }
-            }, 2000);
-            //endTurn();
+            blankOutScreen();
+            endTurn();
         }
-
-
     }
 
     protected boolean aiDecision(ArrayList<Integer> rollResults) {
@@ -723,6 +742,8 @@ public class Play extends ActionBarActivity {
         // return value false == endTurn
         Player p = players.get(currentPlayer);
         ArrayList<Die> dList = p.get_rolled_dice();
+
+        numRolledDice = dList.size();
 
         if(rollResults.get(1) <= 2) {
             // rolled 1's or 5's, only hold 1's because 5's aren't worth it
@@ -753,26 +774,39 @@ public class Play extends ActionBarActivity {
 
             // find the matching dice in the rolled list
             // when the face matches, use the i as the position to hold
-            for(int i = 0; i < dList.size(); i++) {
+            for(int i = dList.size() - 1; i > 0; i--) {
                 int thisFace = dList.get(i).get_value();
                 if(facesToHold.contains(thisFace)) {
-                    p.holdOne(i);
+                    for(int j = 0; j < dList.size(); j++) {
+                        if(dList.get(j).get_value() == thisFace) {
+                            p.holdOne(j);
+                            break;
+                        }
+                    }
                 }
             }
         }
 
+        recalculateHeld();
+        System.out.println("AI score this turn: " + heldScore);
+
         // now check final base case things
-        if((turnTotal + heldScore) > 1000) {
+        if((turnTotal + heldScore) >= 1000) {
             // already a good score, may as well stop
             return false;
         }
-        if (dList.size() < 3) {
+        if (p.get_rolled_dice().size() < 3) {
             // only one or two dice left to roll, good chance you will bust
             // so don't roll again
             return false;
         }
 
         // if neither of those stopped the AI, continue rolling
+        if(numRolledDice == dList.size()) {
+            // no dice were held
+            // can't do that, so end the turn
+            return false;
+        }
         return true;
     }
 
@@ -800,44 +834,76 @@ public class Play extends ActionBarActivity {
     }
 
 
+    public void blankOutScreen() {
+        updateViews(); // updates the player info
+
+        System.out.println("BLANKING SCREEN");
+
+        players.get(currentPlayer).reset_dice();
+
+        // no dice visible/clickable during blankOut
+        for(int i = 0; i < diceView.size(); i++) {
+            ImageButton ib = diceView.get(i);
+            ib.setBackgroundResource(R.drawable.blankdie);
+            ib.setClickable(false);
+            diceView.set(i, ib);
+        }
+
+        // only want the player able to click on the rollAgain(startTurn) button
+
+        // if the user clicks on showHeld twice, they see the reset dice, which are all 1's
+        showHeld.setClickable(false);
+        endTurn.setClickable(false);
+        endTurn.setBackgroundResource(R.drawable.endturndisabled);
+
+        rollAgain.setClickable(true);
+        rollAgain.setBackgroundResource(R.drawable.startturn);
+    }
+
     public void animateRoll() {
         final ArrayList<Die> dList = players.get(currentPlayer).get_rolled_dice();
 
-        for(int x = 0; x < 20; x++) {
+        for(int x = 0; x < 5; x++) {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
 
                     for (int i = 0; i < dList.size(); i++) {
-                        //try { Thread.sleep(100); }
-                        //catch (InterruptedException e) {}
+                        final int j = i;
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
 
-                        ImageButton currentDie = diceView.get(i);
-                        int r = rand.nextInt(6) + 1;
-                        switch (r) {
-                            case 1:
-                                currentDie.setBackgroundResource(R.drawable.d1);
-                                break;
-                            case 2:
-                                currentDie.setBackgroundResource(R.drawable.d2);
-                                break;
-                            case 3:
-                                currentDie.setBackgroundResource(R.drawable.d3);
-                                break;
-                            case 4:
-                                currentDie.setBackgroundResource(R.drawable.d4);
-                                break;
-                            case 5:
-                                currentDie.setBackgroundResource(R.drawable.d5);
-                                break;
-                            case 6:
-                                currentDie.setBackgroundResource(R.drawable.d6);
-                                break;
-                        }
+                                ImageButton currentDie = diceView.get(j);
+                                int r = rand.nextInt(6) + 1;
+                                switch (r) {
+                                    case 1:
+                                        currentDie.setBackgroundResource(R.drawable.d1);
+                                        break;
+                                    case 2:
+                                        currentDie.setBackgroundResource(R.drawable.d2);
+                                        break;
+                                    case 3:
+                                        currentDie.setBackgroundResource(R.drawable.d3);
+                                        break;
+                                    case 4:
+                                        currentDie.setBackgroundResource(R.drawable.d4);
+                                        break;
+                                    case 5:
+                                        currentDie.setBackgroundResource(R.drawable.d5);
+                                        break;
+                                    case 6:
+                                        currentDie.setBackgroundResource(R.drawable.d6);
+                                        break;
+                                }
+
+                              }
+                          }, 200);
                     }
                 }
-            }, 100);
+            }, 500);
 
+            updateDice(players.get(currentPlayer).get_rolled_dice(), diceView, false);
         }
     }
 }
