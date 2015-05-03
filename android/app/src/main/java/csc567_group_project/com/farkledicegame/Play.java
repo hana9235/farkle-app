@@ -267,14 +267,14 @@ public class Play extends ActionBarActivity {
         ArrayList<Integer> roll_results = calculate_roll_value(p.get_rolled_dice());
 
         // use roll score as temporary value to prevent scoring issues with turnTotal
-        int rollScore = roll_results.get(0);
-        if(rollScore == 0 || roll_results.get(1) == 0) {
-            // no scoring dice
+        if(roll_results.get(0) == 0 || roll_results.get(1) == 0) { // pts or scoring_dice
+            // no scoring dice, is busting
             turnScore.setText("0");
             turnTotal = 0;
             heldScore = 0;
             //blankOutScreen();
             endTurn();
+            return;
         }
         allScored = false;
 
@@ -297,7 +297,7 @@ public class Play extends ActionBarActivity {
 
             showHeld.setClickable(false);
 
-            updateTurnScore(rollScore);
+            updateTurnScore(roll_results.get(0));
             for (int i = 0; i < diceView.size(); i++) {
                 ImageButton ib = diceView.get(i);
                 ib.setClickable(false);
@@ -557,8 +557,6 @@ public class Play extends ActionBarActivity {
         return results;
     }
 
-
-
     public void endTurn() {
         // when a user is done with their turn
         // turn points are added to total (IF the user is over the 1000 point entry threshold)
@@ -573,16 +571,12 @@ public class Play extends ActionBarActivity {
         turnTotal += heldScore;
 
         p.reset_dice();
+
         p.add_to_score(turnTotal);
 
         String msg;
         if(turnTotal == 0) {
-            if(p.get_on_board()) {
-                msg = p.get_name() + " busted this turn.";
-            }
-            else {
-                msg = p.get_name() + " did not score enough to get on the board.";
-            }
+            msg = p.get_name() + " busted this turn.";
         }
         else {
             if(!p.get_on_board()) {
@@ -609,7 +603,6 @@ public class Play extends ActionBarActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
-
                     }
                 })
                 .setIcon(R.drawable.icon_small);
@@ -630,17 +623,17 @@ public class Play extends ActionBarActivity {
 
         updateViews();
 
-
+/**
         for(int i = 0; i < diceView.size(); i++) {
             ImageButton ib = diceView.get(i);
             ib.setClickable(false);
             ib.setBackgroundResource(R.drawable.blankdie);
             diceView.set(i, ib);
         }
+ */
 
         blankOutScreen();
     }
-
 
     public void updateViews() {
         Player p = players.get(currentPlayer);
@@ -682,7 +675,6 @@ public class Play extends ActionBarActivity {
         }
     }
 
-
     public void recalculateHeld() {
         ArrayList<Die> unlockedDice = players.get(currentPlayer).getUnlockedDice();
         ArrayList<Integer> holdScoreResults = calculate_roll_value(unlockedDice);
@@ -690,7 +682,6 @@ public class Play extends ActionBarActivity {
         heldScore = holdScoreResults.get(0);
         turnScore.setText(Integer.toString(holdScoreResults.get(0) + turnTotal));
     }
-
 
     protected void AIRollAgain() {
         Player p = players.get(currentPlayer);
@@ -711,6 +702,7 @@ public class Play extends ActionBarActivity {
         if(results.get(1) == 0) {
             // bust
             turnTotal = 0;
+            heldScore = 0;
             endTurn();
             return;
         }
@@ -823,7 +815,6 @@ public class Play extends ActionBarActivity {
         return true;
     }
 
-
     public Map<Integer, Integer> get_scoring_dice(Player p) {
         // represents the number of dice that potentially score
         // ai uses this to determine which dice to hold
@@ -845,7 +836,6 @@ public class Play extends ActionBarActivity {
 
         return counted;
     }
-
 
     public void blankOutScreen() {
         updateViews(); // updates the player info
