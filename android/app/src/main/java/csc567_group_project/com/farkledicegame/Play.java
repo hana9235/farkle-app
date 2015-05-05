@@ -6,12 +6,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -213,6 +216,7 @@ public class Play extends ActionBarActivity {
         switch (item.getItemId()) {
             case R.id.show_scores:
                 // TODO: showScores(); -- alert dialog with listView?
+                showScores();
                 return true;
             case R.id.to_winner_demo:
                 toWinner();
@@ -220,6 +224,29 @@ public class Play extends ActionBarActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    public void showScores() {
+        String [] playerInfo = new String[totalPlayers];
+        for(int i = 0; i < totalPlayers; i++) {
+            Player p = players.get(i);
+            playerInfo[i] = p.get_name() + " \t\t" + p.get_score();
+        }
+
+        AlertDialog.Builder scoresDialog = new AlertDialog.Builder(this);
+        LayoutInflater li = getLayoutInflater();
+
+        View convertView = li.inflate(R.layout.scores, null);
+        scoresDialog.setView(convertView);
+        scoresDialog.setTitle("List");
+        ListView lv = (ListView) convertView.findViewById(R.id.scoresLV);
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_expandable_list_item_1 , playerInfo);
+        lv.setAdapter(arrayAdapter);
+
+        scoresDialog.setCancelable(true);
+        scoresDialog.show();
+
     }
 
     public ArrayList<Player> createPlayers(int totalPlayers, int numHumans) {
@@ -236,7 +263,6 @@ public class Play extends ActionBarActivity {
         }
         return players;
     }
-
 
     public void advancePlayer() {
         currentPlayer++;
@@ -259,7 +285,6 @@ public class Play extends ActionBarActivity {
         startActivity(toWinner);
     }
 
-
     public void updateTurnScore(int pts) {
         // add the held score to the current turnTotal
         turnTotal += heldScore;
@@ -273,8 +298,8 @@ public class Play extends ActionBarActivity {
         p.roll_dice();
         allScored = false;
 
-        //animateRoll();
-        updateDice(p.get_rolled_dice(),diceView, false);
+        //animateRoll();  //animating this way does not work properly; the wrong dice are displayed at the end of the roll
+        updateDice(p.get_rolled_dice(), diceView, false);
 
         // the user must hold at least one to keep rolling
         // this will keep track of how many dice were rolled this turn
@@ -585,7 +610,6 @@ public class Play extends ActionBarActivity {
         isRolling = false;
         allScored = false;
 
-
         Player p = players.get(currentPlayer);
 
         turnTotal += heldScore;
@@ -607,13 +631,11 @@ public class Play extends ActionBarActivity {
             }
         }
 
-
         System.out.println(p.get_name() +"'s total score is now: " + p.get_score());
 
         // check against winner threshold first
         if (p.get_score() >= pointsToWin) {
             gameWon = true;
-            // this activity will be finish()'d when Winner starts, no return needed
         }
 
         AlertDialog.Builder endTurnDialog = new AlertDialog.Builder(this)
@@ -642,15 +664,6 @@ public class Play extends ActionBarActivity {
         System.out.println("ENDING TURN");
 
         updateViews();
-
-/**
-        for(int i = 0; i < diceView.size(); i++) {
-            ImageButton ib = diceView.get(i);
-            ib.setClickable(false);
-            ib.setBackgroundResource(R.drawable.blankdie);
-            diceView.set(i, ib);
-        }
- */
 
         blankOutScreen();
     }
@@ -890,6 +903,53 @@ public class Play extends ActionBarActivity {
     @Override
     public void onBackPressed() {
         moveTaskToBack(true);
+    }
+
+    protected void animateRoll() {
+        for(int x = 0; x < diceView.size(); x++) {
+            // disable clicking during animation
+            diceView.get(x).setClickable(false);
+        }
+
+        for(int i = 0; i < 10; i++) {
+            // ten is an arbitrary number, not too small/large
+            // it should show a decent amount of updates
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    for(int j = 0; j < diceView.size(); j++) {
+                        ImageButton die = diceView.get(j);
+                        int r = rand.nextInt(6) + 1;
+                        switch(r) {
+                            case 1:
+                                die.setBackgroundResource(R.drawable.d1);
+                                break;
+                            case 2:
+                                die.setBackgroundResource(R.drawable.d2);
+                                break;
+                            case 3:
+                                die.setBackgroundResource(R.drawable.d3);
+                                break;
+                            case 4:
+                                die.setBackgroundResource(R.drawable.d4);
+                                break;
+                            case 5:
+                                die.setBackgroundResource(R.drawable.d5);
+                                break;
+                            case 6:
+                                die.setBackgroundResource(R.drawable.d6);
+                                break;
+                        }
+                        diceView.set(j, die);
+                    }
+                }
+            }, 2000);
+        }
+
+        for(int x = 0; x < diceView.size(); x++) {
+            // enable clicking after animation
+            diceView.get(x).setClickable(true);
+        }
     }
 
 }

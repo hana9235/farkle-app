@@ -44,15 +44,11 @@ public class Setup extends ActionBarActivity {
                 } else {
                     AIs = Integer.parseInt(numAI.getText().toString());
                 }
-
             int totalPlayers = humans + AIs;
             beginGame(totalPlayers, humans);
-
             }
         });
-
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -60,9 +56,6 @@ public class Setup extends ActionBarActivity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
-
-
-
 
     public void beginGame(int totalPlayers, int humans) {
 
