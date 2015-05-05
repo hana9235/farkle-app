@@ -74,9 +74,15 @@ public class Setup extends ActionBarActivity {
             Intent playgame = new Intent(this, Play.class);
             playgame.putExtra("TOTAL", totalPlayers);
             playgame.putExtra("NUMHUMANS", humans);
-            finish();
+            //finish();
             startActivity(playgame);
         }
     }
+
+    @Override
+    public void onBackPressed() {
+        moveTaskToBack(true);
+    }
+
 
 }

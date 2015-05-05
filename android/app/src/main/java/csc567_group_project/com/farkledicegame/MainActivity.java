@@ -61,7 +61,7 @@ public class MainActivity extends ActionBarActivity {
 
     public void jumpToSetup() {
         Intent toSetup = new Intent(this, Setup.class);
-        finish();
+        //finish();
         startActivity(toSetup);
     }
 
@@ -69,4 +69,10 @@ public class MainActivity extends ActionBarActivity {
         finish();
         System.exit(0);
     }
+
+    @Override
+    public void onBackPressed() {
+        moveTaskToBack(true);
+    }
+
 }

@@ -255,7 +255,7 @@ public class Play extends ActionBarActivity {
             toWinner.putExtra("PlayerName" + i, p.get_name());
             toWinner.putExtra("PlayerScore" + i, p.get_score());
         }
-        finish();
+        //finish();
         startActivity(toWinner);
     }
 
@@ -886,4 +886,10 @@ public class Play extends ActionBarActivity {
             toWinner();
         }
     }
+
+    @Override
+    public void onBackPressed() {
+        moveTaskToBack(true);
+    }
+
 }
