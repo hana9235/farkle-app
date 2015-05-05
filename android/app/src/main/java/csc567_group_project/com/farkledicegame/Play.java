@@ -215,12 +215,15 @@ public class Play extends ActionBarActivity {
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.show_scores:
-                // TODO: showScores(); -- alert dialog with listView?
                 showScores();
                 return true;
             case R.id.to_winner_demo:
                 toWinner();
                 return true;
+            case R.id.quit_game:
+                Intent i = new Intent(this, MainActivity.class);
+                startActivity(i);
+                moveTaskToBack(true);
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -233,18 +236,23 @@ public class Play extends ActionBarActivity {
             playerInfo[i] = p.get_name() + " \t\t" + p.get_score();
         }
 
-        AlertDialog.Builder scoresDialog = new AlertDialog.Builder(this);
+        final AlertDialog.Builder scoresDialog = new AlertDialog.Builder(this);
         LayoutInflater li = getLayoutInflater();
 
         View convertView = li.inflate(R.layout.scores, null);
         scoresDialog.setView(convertView);
-        scoresDialog.setTitle("List");
+        scoresDialog.setTitle("Current Scores");
         ListView lv = (ListView) convertView.findViewById(R.id.scoresLV);
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_expandable_list_item_1 , playerInfo);
         lv.setAdapter(arrayAdapter);
 
-        scoresDialog.setCancelable(true);
+        scoresDialog.setNeutralButton("Okay", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
         scoresDialog.show();
 
     }
