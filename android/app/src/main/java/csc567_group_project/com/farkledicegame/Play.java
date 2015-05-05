@@ -760,22 +760,21 @@ public class Play extends ActionBarActivity {
 
         final Player player = p;
         boolean again = aiDecision(results);
-       // new Handler().postDelayed(new Runnable() {
-         //   @Override
-   //         public void run() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+          public void run() {
                 updateDice(player.get_rolled_dice(), diceView, false);
-     //       }
- //       }, 2000);
+            }
+        }, 2000);
 
         if(again) {
-           // new Handler().postDelayed(new Runnable() {
-             //   @Override
-               // public void run() {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
                     AIRollAgain();
-               // }
-           // }, 2500);
+                }
+            }, 2500);
         } else {
-            //blankOutScreen();
             endTurn();
         }
     }
