@@ -1,5 +1,6 @@
 package csc567_group_project.com.farkledicegame;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -236,11 +237,17 @@ public class Play extends ActionBarActivity {
         LayoutInflater li = getLayoutInflater();
 
         View convertView = li.inflate(R.layout.scores, null);
-        scoresDialog.setView(convertView);
-        scoresDialog.setTitle("Current Scores");
-        ListView lv = (ListView) convertView.findViewById(R.id.scoresLV);
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_expandable_list_item_1 , playerInfo);
+        scoresDialog.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // do nothing
+            }
+        });
+        scoresDialog.setTitle("Current Scores");
+        ListView lv = (ListView) convertView.findViewById(R.id.scoresLV);
+
         lv.setAdapter(arrayAdapter);
 
         scoresDialog.setNeutralButton("Okay", new DialogInterface.OnClickListener() {
@@ -276,15 +283,15 @@ public class Play extends ActionBarActivity {
     }
 
     public void toWinner() {
+        this.closeOptionsMenu();
         Intent toWinner = new Intent(this, Winner.class);
-        // players are in a arraylist "players"
-        // look at the labs
         toWinner.putExtra("numberOfPlayers", totalPlayers);
         for(int i = 0; i < totalPlayers; i++) {
             Player p = players.get(i);
             toWinner.putExtra("PlayerName" + i, p.get_name());
             toWinner.putExtra("PlayerScore" + i, p.get_score());
         }
+        toWinner.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         //finish();
         startActivity(toWinner);
     }
