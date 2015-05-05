@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.GridLayout;
@@ -201,11 +202,24 @@ public class Play extends ActionBarActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-
-        // TODO:  have a "show everyone's score" option that pops up an alert dialog/listview
+        getMenuInflater().inflate(R.menu.menu_play, menu);
 
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.show_scores:
+                // TODO: showScores(); -- alert dialog with listView?
+                return true;
+            case R.id.to_winner_demo:
+                toWinner();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     public ArrayList<Player> createPlayers(int totalPlayers, int numHumans) {
@@ -235,6 +249,12 @@ public class Play extends ActionBarActivity {
         Intent toWinner = new Intent(this, Winner.class);
         // players are in a arraylist "players"
         // look at the labs
+        toWinner.putExtra("numberOfPlayers", totalPlayers);
+        for(int i = 0; i < totalPlayers; i++) {
+            Player p = players.get(i);
+            toWinner.putExtra("PlayerName" + i, p.get_name());
+            toWinner.putExtra("PlayerScore" + i, p.get_score());
+        }
         finish();
         startActivity(toWinner);
     }

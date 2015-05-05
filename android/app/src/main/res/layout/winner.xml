@@ -10,10 +10,11 @@
 
         <ListView
             android:layout_width="300dp"
-            android:layout_height="400dp"
+            android:layout_height="300dp"
             android:layout_margin="0dp"
-            android:background="#000000"
-            android:id="@+id/winners">
+            android:background="#ffffff"
+            android:id="@+id/winners"
+            android:layout_marginTop="40dp">
 
             </ListView>
 
