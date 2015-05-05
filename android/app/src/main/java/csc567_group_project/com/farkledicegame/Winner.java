@@ -77,6 +77,7 @@ public class Winner extends ActionBarActivity{
     public void backToStart() {
         Intent backToStart = new Intent(this, MainActivity.class);
         //finish();
+        backToStart.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(backToStart);
 
     }

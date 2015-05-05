@@ -150,12 +150,8 @@ public class Play extends ActionBarActivity {
                     showHeld.setBackgroundResource(R.drawable.showhelddisabled);
                     rollAgain.setClickable(false);
                     rollAgain.setBackgroundResource(R.drawable.rollagaindisabled);
-               //     new Handler().postDelayed(new Runnable() {
-                 //       @Override
-                   //     public void run() {
-                            AIRollAgain();
-                     //   }
-                   // }, 3000);
+                    AIRollAgain();
+
                 } else {
                     showHeld.setBackgroundResource(R.drawable.showheld);
                     showHeld.setClickable(true);
@@ -306,7 +302,8 @@ public class Play extends ActionBarActivity {
         p.roll_dice();
         allScored = false;
 
-        //animateRoll();  //animating this way does not work properly; the wrong dice are displayed at the end of the roll
+        // enable clicking dice in case all scored previously and were disabled
+        System.out.println("UPDATING AT BEGINNING OF ROLLAGAIN");
         updateDice(p.get_rolled_dice(), diceView, false);
 
         // the user must hold at least one to keep rolling
@@ -325,14 +322,10 @@ public class Play extends ActionBarActivity {
             turnScore.setText("0");
             turnTotal = 0;
             heldScore = 0;
-            //blankOutScreen();
             endTurn();
             return;
         }
         allScored = false;
-
-        // enable clicking dice in case all scored previously and were disabled
-        updateDice(p.get_rolled_dice(), diceView, false);
 
         if (roll_results.get(1) == p.get_rolled_dice().size()) {
             allScored = true;
@@ -359,17 +352,16 @@ public class Play extends ActionBarActivity {
 
             rollAgain.setBackgroundResource(R.drawable.rollagain);
             rollAgain.setClickable(true);
-            // ;
 
             if (allScored) {
                 turnTotal += roll_results.get(0);
                 p.reset_dice();
             }
-
             else {
                 updateTurnScore(heldScore);
             }
         }
+
         firstRollOfTurn = false;
     }
 
@@ -614,7 +606,6 @@ public class Play extends ActionBarActivity {
         // when a user is done with their turn
         // turn points are added to total (IF the user is over the 1000 point entry threshold)
         //blankOutScreen();
-        System.out.println("IN ENDTURN");
         isRolling = false;
         allScored = false;
 
@@ -638,8 +629,6 @@ public class Play extends ActionBarActivity {
                 msg = p.get_name() + " scored " + turnTotal + " this turn.";
             }
         }
-
-        System.out.println(p.get_name() +"'s total score is now: " + p.get_score());
 
         // check against winner threshold first
         if (p.get_score() >= pointsToWin) {
@@ -669,8 +658,6 @@ public class Play extends ActionBarActivity {
 
         // reset to check for 6 of same value on first roll, which is automatic win
         firstRollOfTurn = true;
-        System.out.println("ENDING TURN");
-
         updateViews();
 
         blankOutScreen();
@@ -730,6 +717,7 @@ public class Play extends ActionBarActivity {
 
         p.roll_dice();
 
+        System.out.println("UPDATING AT BEGINNING OF AI ROLLAGAIN");
         updateDice(p.get_rolled_dice(), diceView, false);
 
         // disable the dice so the user won't screw it up
@@ -759,18 +747,13 @@ public class Play extends ActionBarActivity {
         firstRollOfTurn = false;
 
         final Player player = p;
-        boolean again = aiDecision(results);
-        new Handler().postDelayed(new Runnable() {
-            @Override
-          public void run() {
-                updateDice(player.get_rolled_dice(), diceView, false);
-            }
-        }, 2000);
 
+        boolean again = aiDecision(results);
         if(again) {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
+                    updateDice(player.get_rolled_dice(), diceView, false);
                     AIRollAgain();
                 }
             }, 2500);
@@ -911,52 +894,4 @@ public class Play extends ActionBarActivity {
     public void onBackPressed() {
         moveTaskToBack(true);
     }
-
-    protected void animateRoll() {
-        for(int x = 0; x < diceView.size(); x++) {
-            // disable clicking during animation
-            diceView.get(x).setClickable(false);
-        }
-
-        for(int i = 0; i < 10; i++) {
-            // ten is an arbitrary number, not too small/large
-            // it should show a decent amount of updates
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    for(int j = 0; j < diceView.size(); j++) {
-                        ImageButton die = diceView.get(j);
-                        int r = rand.nextInt(6) + 1;
-                        switch(r) {
-                            case 1:
-                                die.setBackgroundResource(R.drawable.d1);
-                                break;
-                            case 2:
-                                die.setBackgroundResource(R.drawable.d2);
-                                break;
-                            case 3:
-                                die.setBackgroundResource(R.drawable.d3);
-                                break;
-                            case 4:
-                                die.setBackgroundResource(R.drawable.d4);
-                                break;
-                            case 5:
-                                die.setBackgroundResource(R.drawable.d5);
-                                break;
-                            case 6:
-                                die.setBackgroundResource(R.drawable.d6);
-                                break;
-                        }
-                        diceView.set(j, die);
-                    }
-                }
-            }, 2000);
-        }
-
-        for(int x = 0; x < diceView.size(); x++) {
-            // enable clicking after animation
-            diceView.get(x).setClickable(true);
-        }
-    }
-
 }
